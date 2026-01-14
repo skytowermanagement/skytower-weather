@@ -2,118 +2,253 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ariake Weather</title>
+  <meta name="viewport" content="width=1380, height=776, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>SkyTower Weather</title>
+
   <style>
-    body{margin:0;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;}
-    .wrap{width:100vw;height:100vh;box-sizing:border-box;padding:12px;}
-    .top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px;}
-    .place{font-size:18px;font-weight:800;}
-    .time{font-size:12px;opacity:.7;}
-    .grid{display:flex;gap:10px;}
-    .card{flex:1;border:1px solid #ddd;border-radius:12px;padding:10px;}
-    .label{font-size:14px;font-weight:800;margin-bottom:6px;}
-    .main{display:flex;gap:10px;align-items:center;}
-    .icon{width:52px;height:52px;}
-    .wx{font-size:12px;opacity:.9;line-height:1.3;}
-    .temps{margin-top:6px;font-size:14px;font-weight:700;}
-    .pops{margin-top:6px;font-size:12px;opacity:.85;}
-    .src{margin-top:10px;font-size:10px;opacity:.6;}
-    .err{margin-top:6px;color:#b00020;font-size:12px;}
+    html, body {
+      width: 1380px;
+      height: 776px;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #0b0f14;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Yu Gothic", sans-serif;
+    }
+
+    #app {
+      width: 1380px;
+      height: 776px;
+      box-sizing: border-box;
+      padding: 28px 34px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+    }
+
+    .top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .title {
+      font-size: 44px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      line-height: 1.1;
+    }
+
+    .meta {
+      font-size: 22px;
+      opacity: 0.8;
+      white-space: nowrap;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      min-height: 0;
+    }
+
+    .card {
+      border-radius: 22px;
+      background: rgba(255,255,255,0.08);
+      padding: 22px 26px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .card h2 {
+      margin: 0;
+      font-size: 34px;
+      font-weight: 800;
+    }
+
+    .wx {
+      font-size: 30px;
+      font-weight: 700;
+      opacity: 0.95;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 28px;
+      line-height: 1.2;
+    }
+
+    .label { opacity: 0.75; }
+    .val   { font-weight: 800; }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 18px;
+      opacity: 0.75;
+      white-space: nowrap;
+    }
+
+    #err { color: #ffb3b3; }
+
+    * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
   </style>
 </head>
+
 <body>
-<div class="wrap">
-  <div class="top">
-    <div class="place" id="place">東京地方</div>
-    <div class="time" id="pub">更新: --</div>
-  </div>
-
-  <div class="grid">
-    <div class="card">
-      <div class="label">今日</div>
-      <div class="main">
-        <img class="icon" id="icon0" alt="">
-        <div>
-          <div class="wx" id="w0">--</div>
-          <div class="temps" id="t0">最高 -- / 最低 --</div>
-        </div>
-      </div>
-      <div class="pops" id="p0">降水: --</div>
+  <div id="app">
+    <div class="top">
+      <div class="title">東京（江東区）天気</div>
+      <div class="meta" id="pub">更新：--</div>
     </div>
 
-    <div class="card">
-      <div class="label">明日</div>
-      <div class="main">
-        <img class="icon" id="icon1" alt="">
-        <div>
-          <div class="wx" id="w1">--</div>
-          <div class="temps" id="t1">最高 -- / 最低 --</div>
+    <div class="cards">
+      <section class="card">
+        <h2>今日</h2>
+        <div class="wx" id="w0">--</div>
+        <div class="grid">
+          <div class="row"><span class="label">最高 / 最低</span><span class="val" id="t0">-- / -- ℃</span></div>
+          <div class="row"><span class="label">降水確率（0-6/6-12/12-18/18-24）</span><span class="val" id="p0">--</span></div>
         </div>
-      </div>
-      <div class="pops" id="p1">降水: --</div>
+      </section>
+
+      <section class="card">
+        <h2>明日</h2>
+        <div class="wx" id="w1">--</div>
+        <div class="grid">
+          <div class="row"><span class="label">最高 / 最低</span><span class="val" id="t1">-- / -- ℃</span></div>
+          <div class="row"><span class="label">降水確率（0-6/6-12/12-18/18-24）</span><span class="val" id="p1">--</span></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer">
+      <div>出典：気象庁（forecast JSON）</div>
+      <div id="err"></div>
     </div>
   </div>
 
-  <div class="src">出典: 気象庁（forecast JSON）</div>
-  <div class="err" id="err"></div>
-</div>
+  <script>
+    (async () => {
+      const errEl = document.getElementById("err");
+      const setErr = (msg) => { errEl.textContent = msg || ""; };
 
-<script>
-(async () => {
-  try {
-    // 東京地方（130000）
-    const url = "https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json";
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error("fetch failed: " + res.status);
-    const data = await res.json();
+      try {
+        // 東京都（東京地方 = 江東区含む扱い）
+        const url = "https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json";
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error("fetch failed: " + res.status);
+        const data = await res.json();
 
-    document.getElementById("pub").textContent =
-      "更新: " + (data[0].reportDatetime || "--").replace("T"," ").slice(0,16);
+        // 更新時刻
+        const pub = (data?.[0]?.reportDatetime || "").replace("T", " ").slice(0, 16);
+        document.getElementById("pub").textContent = pub ? `更新：${pub}` : "更新：--";
 
-    const areaName = "東京地方";
-    document.getElementById("place").textContent = areaName;
+        // --- 天気（今日/明日） ---
+        // timeSeries内のどれかに weatherCodes / weathers がある
+        const tsWeather = (data?.[0]?.timeSeries || []).find(ts =>
+          ts?.areas?.[0]?.weatherCodes || ts?.areas?.[0]?.weathers
+        );
+        if (!tsWeather) throw new Error("天気データが見つかりません");
 
-    const tsW = data[0].timeSeries[0];
-    const tsP = data[0].timeSeries[1];
-    const tsT = data[0].timeSeries[2];
+        // 「東京地方」を優先。なければ先頭
+        const areaWeather =
+          tsWeather.areas.find(a => a.area?.name?.includes("東京")) || tsWeather.areas[0];
 
-    const iw = tsW.areas.findIndex(a => a.area?.name === areaName);
-    if (iw < 0) throw new Error("area not found: " + areaName);
+        const weatherTexts = areaWeather.weathers || [];
+        const weatherCodes = areaWeather.weatherCodes || [];
 
-    const weatherCodes = tsW.areas[iw].weatherCodes || [];
-    const weathers = tsW.areas[iw].weathers || [];
+        // 表示は “今日=0, 明日=1” を基本（取得形式により足りない場合あり）
+        const w0 = weatherTexts[0] || (weatherCodes[0] ? `天気コード:${weatherCodes[0]}` : "--");
+        const w1 = weatherTexts[1] || (weatherCodes[1] ? `天気コード:${weatherCodes[1]}` : "--");
+        document.getElementById("w0").textContent = w0;
+        document.getElementById("w1").textContent = w1;
 
-    const code0 = weatherCodes[0], code1 = weatherCodes[1];
-    const w0 = weathers[0] || "--";
-    const w1 = weathers[1] || "--";
+        // --- 降水確率（6時間ごと） ---
+        const tsPop = (data?.[0]?.timeSeries || []).find(ts => ts?.areas?.[0]?.pops);
+        if (tsPop) {
+          const areaPop =
+            tsPop.areas.find(a => a.area?.name?.includes("東京")) || tsPop.areas[0];
+          const pops = (areaPop.pops || []).map(x => (x === "" ? "--" : x));
 
-    const iconBase = "https://www.jma.go.jp/bosai/forecast/img/";
-    if (code0) document.getElementById("icon0").src = iconBase + code0 + ".svg";
-    if (code1) document.getElementById("icon1").src = iconBase + code1 + ".svg";
-    document.getElementById("w0").textContent = w0;
-    document.getElementById("w1").textContent = w1;
+          const todayP = pops.slice(0, 4).join(" / ");
+          const tomoP  = pops.slice(4, 8).join(" / ");
 
-    // 降水確率（6時間ごと）→ 今日/明日で4コずつ表示
-    const ip = tsP.areas.findIndex(a => a.area?.name === areaName);
-    const pops = (ip >= 0 ? tsP.areas[ip].pops : []).map(x => x === "" ? "-" : x);
+          document.getElementById("p0").textContent = todayP || "--";
+          document.getElementById("p1").textContent = tomoP  || "--";
+        } else {
+          document.getElementById("p0").textContent = "--";
+          document.getElementById("p1").textContent = "--";
+        }
 
-    const todayP = pops.slice(0,4).join(" / ");
-    const tomoP  = pops.slice(4,8).join(" / ");
-    document.getElementById("p0").textContent = "降水(0-6/6-12/12-18/18-24): " + (todayP || "--") + (todayP ? " %" : "");
-    document.getElementById("p1").textContent = "降水(0-6/6-12/12-18/18-24): " + (tomoP  || "--") + (tomoP  ? " %" : "");
+        // --- 気温（最高/最低） ---
+        // 気象庁の形式は揺れるので「tempsがあるts」を探して日ごとにmax/minを推定
+        const tsTemp = (data?.[0]?.timeSeries || []).find(ts => ts?.areas?.[0]?.temps);
+        if (tsTemp) {
+          const areaTemp =
+            tsTemp.areas.find(a => a.area?.name?.includes("東京")) || tsTemp.areas[0];
 
-    // 気温（多くの地域で min/max が入る）
-    const it = tsT?.areas?.findIndex(a => a.area?.name === areaName) ?? -1;
-    const temps = it >= 0 ? (tsT.areas[it].temps || []) : [];
-    const min0 = temps[0], max0 = temps[1], min1 = temps[2], max1 = temps[3];
+          const times = tsTemp.timeDefines || [];
+          const temps = (areaTemp.temps || []).map(t => (t === "" ? null : Number(t)));
 
-    document.getElementById("t0").textContent = `最高 ${max0 ?? "--"}° / 最低 ${min0 ?? "--"}°`;
-    document.getElementById("t1").textContent = `最高 ${max1 ?? "--"}° / 最低 ${min1 ?? "--"}°`;
-  } catch (e) {
-    document.getElementById("err").textContent = "表示エラー: " + e.message;
-  }
-})();
-</script>
+          // 日付(YYYY-MM-DD)ごとに集計
+          const byDate = new Map();
+          for (let i = 0; i < Math.min(times.length, temps.length); i++) {
+            const d = (times[i] || "").slice(0, 10);
+            const v = temps[i];
+            if (!d || v == null || Number.isNaN(v)) continue;
+            if (!byDate.has(d)) byDate.set(d, []);
+            byDate.get(d).push(v);
+          }
+
+          const dates = Array.from(byDate.keys()).sort(); // 今日→明日の順になりやすい
+          const today = dates[0];
+          const tomo  = dates[1];
+
+          const fmt = (arr) => {
+            if (!arr || !arr.length) return "-- / -- ℃";
+            const max = Math.max(...arr);
+            const min = Math.min(...arr);
+            return `${max} / ${min} ℃`;
+          };
+
+          document.getElementById("t0").textContent = fmt(byDate.get(today));
+          document.getElementById("t1").textContent = fmt(byDate.get(tomo));
+        } else {
+          document.getElementById("t0").textContent = "-- / -- ℃";
+          document.getElementById("t1").textContent = "-- / -- ℃";
+        }
+
+        // 30分ごとに自動更新（サイネージ向け）
+        setTimeout(() => location.reload(), 30 * 60 * 1000);
+
+        setErr("");
+      } catch (e) {
+        setErr("表示エラー：" + (e?.message || e));
+      }
+    })();
+  </script>
 </body>
 </html>
