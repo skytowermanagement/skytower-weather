@@ -1,62 +1,281 @@
-// --- 気温（今日/明日）
-// 詳細(d0)に今日が無い回があるので、週間(data[1])で補完する
-const todayStr = ymd(new Date());
-const tomoStr  = ymd(new Date(Date.now() + 24*60*60*1000));
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1380, height=776, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>SkyTower Weather</title>
 
-function getTempsFromWeekly(dateStr) {
-  const d1 = data[1]; // 週間予報
-  if (!d1?.timeSeries?.length) return null;
+  <style>
+    html, body{
+      width:1380px; height:776px;
+      margin:0; padding:0;
+      overflow:hidden;
+      background:#fff;
+      color:#111;
+      font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Segoe UI",Roboto,"Helvetica Neue",Arial,"Yu Gothic",sans-serif;
+    }
 
-  // 週間の気温はだいたい timeSeries[1] に入る（tempsMin/tempsMax）
-  const ts = d1.timeSeries.find(x => x?.areas?.[0]?.tempsMin && x?.areas?.[0]?.tempsMax) || d1.timeSeries[1];
-  if (!ts?.timeDefines?.length || !ts?.areas?.length) return null;
+    #app{
+      width:1380px; height:776px;
+      box-sizing:border-box;
+      padding:34px 44px;
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+      gap:18px;
+    }
 
-  const idx = findAreaIndex(ts, AREA_TEMP); // "東京"
-  const a = (idx >= 0 ? ts.areas[idx] : ts.areas[0]);
-  const mins = a?.tempsMin || [];
-  const maxs = a?.tempsMax || [];
+    .top{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:18px;
+    }
+    .title{
+      font-size:60px;
+      font-weight:900;
+      letter-spacing:0.02em;
+      line-height:1.05;
+    }
+    .meta{
+      font-size:28px;
+      opacity:0.85;
+      white-space:nowrap;
+    }
 
-  const i = ts.timeDefines.findIndex(td => ymd(parseJst(td)) === dateStr);
-  if (i < 0) return null;
+    .cards{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:22px;
+      min-height:0;
+    }
 
-  const min = mins[i] ?? "--";
-  const max = maxs[i] ?? "--";
-  if (min === "--" && max === "--") return null;
-  return { min, max };
-}
+    .card{
+      border-radius:26px;
+      background:#f3f5f7;
+      border:1px solid rgba(0,0,0,0.08);
+      padding:26px 30px;
+      display:grid;
+      grid-template-rows:auto auto 1fr;
+      gap:14px;
+      min-height:0;
+    }
 
-let t0 = "-- / -- ℃";
-let t1 = "-- / -- ℃";
+    .card h2{
+      margin:0;
+      font-size:48px;
+      font-weight:900;
+      letter-spacing:0.01em;
+    }
 
-// ① まずは詳細(d0)から（取れればそれが優先）
-const tsTempDetail = d0.timeSeries?.[2];
-if (tsTempDetail?.areas?.length) {
-  const idxT = findAreaIndex(tsTempDetail, AREA_TEMP); // "東京"
-  const aT = (idxT >= 0 ? tsTempDetail.areas[idxT] : tsTempDetail.areas[0]);
-  const temps = aT?.temps || [];
-  const td0 = tsTempDetail.timeDefines?.[0] ? ymd(parseJst(tsTempDetail.timeDefines[0])) : null;
+    .wx{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      font-size:42px;   /* ←天気文字を大きく */
+      font-weight:900;
+      line-height:1.15;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
 
-  if (td0 === todayStr && temps.length >= 2) {
-    const min = temps[0] ?? "--";
-    const max = temps[1] ?? "--";
-    t0 = `${max} / ${min} ℃`;
+    .icon{
+      font-size:64px;   /* ←アイコンを大きく */
+      line-height:1;
+      transform:translateY(2px);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:14px;
+      align-content:start;
+    }
+
+    .row{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:18px;
+      font-size:34px;   /* ←項目文字を大きく */
+      line-height:1.15;
+    }
+
+    .label{ opacity:0.75; }
+    .val{ font-weight:900; }
+
+    .footer{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:20px;
+      opacity:0.7;
+      white-space:nowrap;
+    }
+
+    *{ -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="top">
+      <div class="title">東京（江東区）天気</div>
+      <div class="meta" id="pub">更新：--</div>
+    </div>
+
+    <div class="cards">
+      <section class="card">
+        <h2>今日</h2>
+        <div class="wx"><span class="icon" id="i0">--</span><span id="w0">--</span></div>
+        <div class="grid">
+          <div class="row"><span class="label">最高 / 最低</span><span class="val" id="t0">-- / -- ℃</span></div>
+          <div class="row"><span class="label">降水確率（0-6/6-12/12-18/18-24）</span><span class="val" id="p0">--/--/--/--</span></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>明日</h2>
+        <div class="wx"><span class="icon" id="i1">--</span><span id="w1">--</span></div>
+        <div class="grid">
+          <div class="row"><span class="label">最高 / 最低</span><span class="val" id="t1">-- / -- ℃</span></div>
+          <div class="row"><span class="label">降水確率（0-6/6-12/12-18/18-24）</span><span class="val" id="p1">--/--/--/--</span></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer">
+      <div>出典：気象庁（forecast JSON）</div>
+      <div id="err"></div>
+    </div>
+  </div>
+
+<script>
+(async () => {
+  const $ = (id) => document.getElementById(id);
+  const AREA_WEATHER_KEY = "東京"; // "東京地方" 等を含むので includes で拾う
+
+  function parseJst(s){
+    // "2026-01-14T17:00:00+09:00" など
+    return new Date(s);
   }
-  if (td0 === tomoStr && temps.length >= 2) {
-    const min = temps[0] ?? "--";
-    const max = temps[1] ?? "--";
-    t1 = `${max} / ${min} ℃`;
+  function ymd(d){
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const da = String(d.getDate()).padStart(2,"0");
+    return `${y}-${m}-${da}`;
   }
-}
+  function pickArea(ts, keyword){
+    if (!ts?.areas?.length) return null;
+    const i = ts.areas.findIndex(a => (a?.area?.name || "").includes(keyword));
+    return ts.areas[i >= 0 ? i : 0];
+  }
 
-// ② 今日/明日が "--/--" のままなら、週間(data[1])で補完
-if (t0.startsWith("--")) {
-  const w = getTempsFromWeekly(todayStr);
-  if (w) t0 = `${w.max} / ${w.min} ℃`;
-}
-if (t1.startsWith("--")) {
-  const w = getTempsFromWeekly(tomoStr);
-  if (w) t1 = `${w.max} / ${w.min} ℃`;
-}
+  // 天気文言→絵文字（ざっくりでOK。必要なら追加）
+  function iconFromWeatherText(t){
+    const s = (t || "");
+    if (s.includes("晴")) return "☀️";
+    if (s.includes("くもり") || s.includes("曇")) return "☁️";
+    if (s.includes("雨")) return "🌧️";
+    if (s.includes("雪")) return "❄️";
+    if (s.includes("雷")) return "⛈️";
+    return "🌤️";
+  }
 
-document.getElementById("t0").textContent = t0;
-document.getElementById("t1").textContent = t1;
+  // pops を timeDefines の時刻で 0-6/6-12/12-18/18-24 に割り当て
+  function popsBySlots(tsPop, keyword, dateStr){
+    const a = pickArea(tsPop, keyword);
+    if (!a) return ["--","--","--","--"];
+
+    const pops = a.pops || [];
+    const tds = tsPop.timeDefines || [];
+    const out = ["--","--","--","--"];
+
+    for (let i=0; i<tds.length; i++){
+      const d = parseJst(tds[i]);
+      if (ymd(d) !== dateStr) continue;
+      const h = d.getHours();
+      const slot = (h < 6) ? 0 : (h < 12) ? 1 : (h < 18) ? 2 : 3;
+      out[slot] = (pops[i] ?? "--");
+    }
+    return out;
+  }
+
+  // 週間予報から max/min を引く（今日が欠けても必ず出す用）
+  function tempsFromWeekly(data1, keyword, dateStr){
+    const d1 = data1;
+    if (!d1?.timeSeries?.length) return null;
+
+    const ts = d1.timeSeries.find(x => x?.areas?.[0]?.tempsMin && x?.areas?.[0]?.tempsMax);
+    if (!ts) return null;
+
+    const a = pickArea(ts, keyword) || ts.areas[0];
+    const mins = a.tempsMin || [];
+    const maxs = a.tempsMax || [];
+    const i = (ts.timeDefines || []).findIndex(td => ymd(parseJst(td)) === dateStr);
+    if (i < 0) return null;
+
+    const min = mins[i] ?? "--";
+    const max = maxs[i] ?? "--";
+    if (min === "--" && max === "--") return null;
+    return {min, max};
+  }
+
+  try{
+    const url = "https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json";
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("fetch failed: " + res.status);
+    const data = await res.json();
+
+    const d0 = data[0]; // 詳細（天気/降水/気温）
+    const d1 = data[1]; // 週間（気温補完に使う）
+
+    // 更新時刻
+    const rep = (d0.reportDatetime || "--").replace("T"," ").slice(0,16);
+    $("pub").textContent = "更新：" + rep;
+
+    const today = new Date();
+    const tomo  = new Date(Date.now() + 24*60*60*1000);
+    const todayStr = ymd(today);
+    const tomoStr  = ymd(tomo);
+
+    // 天気（今日/明日）
+    const tsW = d0.timeSeries?.[0];
+    const aW = pickArea(tsW, AREA_WEATHER_KEY);
+    const weathers = aW?.weathers || [];
+    const w0 = weathers[0] ?? "--";
+    const w1 = weathers[1] ?? (weathers[0] ?? "--"); // 念のため
+
+    $("w0").textContent = w0;
+    $("w1").textContent = w1;
+    $("i0").textContent = iconFromWeatherText(w0);
+    $("i1").textContent = iconFromWeatherText(w1);
+
+    // 降水確率（4枠）
+    const tsP = d0.timeSeries?.[1];
+    const p0 = popsBySlots(tsP, AREA_WEATHER_KEY, todayStr);
+    const p1 = popsBySlots(tsP, AREA_WEATHER_KEY, tomoStr);
+    $("p0").textContent = p0.join("/");
+    $("p1").textContent = p1.join("/");
+
+    // 気温（今日/明日）→ 週間で必ず補完
+    const t0w = tempsFromWeekly(d1, AREA_WEATHER_KEY, todayStr);
+    const t1w = tempsFromWeekly(d1, AREA_WEATHER_KEY, tomoStr);
+
+    $("t0").textContent = (t0w ? `${t0w.max} / ${t0w.min} ℃` : "-- / -- ℃");
+    $("t1").textContent = (t1w ? `${t1w.max} / ${t1w.min} ℃` : "-- / -- ℃");
+
+    // 30分更新（サイネージ向け）
+    setTimeout(() => location.reload(), 30 * 60 * 1000);
+
+  }catch(e){
+    $("err").textContent = "表示エラー：" + (e?.message || e);
+  }
+})();
+</script>
+
+</body>
+</html>
