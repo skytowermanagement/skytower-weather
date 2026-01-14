@@ -9,128 +9,149 @@
   <title>SkyTower Weather</title>
 
   <style>
-    html, body{
-      width:1380px; height:776px;
-      margin:0; padding:0;
-      overflow:hidden;
-      background:#fff;
-      color:#111;
-      font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Segoe UI",Roboto,"Helvetica Neue",Arial,"Yu Gothic",sans-serif;
+    /* ===== 固定サイズ（横1380 縦776） ===== */
+    html, body {
+      width: 1380px;
+      height: 776px;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #ffffff; /* ← 背景 白 */
+      color: #111;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP",
+                   "Segoe UI", Roboto, "Helvetica Neue", Arial, "Yu Gothic", sans-serif;
     }
 
+    /* 全体レイアウト */
     #app{
-      width:1380px; height:776px;
-      box-sizing:border-box;
-      padding:34px 44px;
-      display:grid;
-      grid-template-rows:auto 1fr auto;
-      gap:18px;
+      width: 1380px;
+      height: 776px;
+      box-sizing: border-box;
+      padding: 28px 34px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
     }
 
+    /* 上部 */
     .top{
-      display:flex;
-      align-items:baseline;
-      justify-content:space-between;
-      gap:18px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
     }
-
-    /* タイトルは小さくて良い */
     .title{
-      font-size:40px;
-      font-weight:900;
-      letter-spacing:0.02em;
-      line-height:1.05;
+      font-size: 44px;   /* ←ここは小さくてOKとのことなので過剰に大きくしない */
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      line-height: 1.05;
     }
-
     .meta{
-      font-size:26px;
-      opacity:0.85;
-      white-space:nowrap;
+      font-size: 22px;
+      opacity: 0.8;
+      white-space: nowrap;
     }
 
+    /* カード2枚 */
     .cards{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:22px;
-      min-height:0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      min-height: 0;
     }
-
     .card{
-      border-radius:26px;
-      background:#f3f5f7;
-      border:1px solid rgba(0,0,0,0.08);
-      padding:26px 30px;
-      display:grid;
-      grid-template-rows:auto auto 1fr;
-      gap:16px;
-      min-height:0;
+      border-radius: 22px;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      padding: 26px 26px;
+      display: grid;
+      grid-template-rows: auto auto auto 1fr;
+      gap: 10px;
+      min-height: 0;
     }
-
     .card h2{
-      margin:0;
-      font-size:56px;
-      font-weight:900;
-      letter-spacing:0.01em;
+      margin: 0;
+      font-size: 48px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
     }
 
-    .wx{
+    /* ===== アイコン超巨大 + 天気短文 ===== */
+    .wxline{
       display:flex;
       align-items:center;
-      gap:20px;
-      font-size:46px;
-      font-weight:900;
-      line-height:1.1;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      gap: 24px;
+      min-height: 340px; /* ←アイコン巨大用の高さ確保 */
     }
-
-    /* マークを“6倍級”でドカンと */
     .icon{
-      font-size:180px; /* ←ここが肝（さらに増やしたければ 200/220 へ） */
-      line-height:1;
-      transform:translateY(6px);
-      flex:0 0 auto;
+      font-size: 420px;  /* ←「さらに3倍」相当の巨大化（必要ならここだけ増やす） */
+      line-height: 1;
+      width: 520px;
+      text-align: left;
+    }
+    .wxtext{
+      font-size: 96px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      line-height: 1.05;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 740px;
     }
 
+    /* 長文（朝から〜等）は別行で2行まで */
+    .wxdetail{
+      margin-top: -6px;
+      font-size: 44px;
+      font-weight: 800;
+      opacity: 0.9;
+      line-height: 1.18;
+
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2; /* 2行でカット */
+      overflow: hidden;
+    }
+
+    /* 数値行 */
     .grid{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:16px;
-      align-content:start;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      align-content: start;
     }
-
     .row{
       display:flex;
-      align-items:baseline;
-      justify-content:space-between;
-      gap:18px;
-      font-size:36px;
-      line-height:1.15;
+      align-items:center;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 34px;   /* ←文字も大きく */
+      line-height: 1.2;
     }
+    .label{ opacity: 0.75; }
+    .val{ font-weight: 900; }
 
-    .label{
-      opacity:0.75;
-      white-space:nowrap;
-    }
-
-    /* 値が折り返して崩れるのを防ぐ */
-    .val{
-      font-weight:900;
-      white-space:nowrap;
-      text-align:right;
-    }
-
+    /* フッター */
     .footer{
       display:flex;
-      justify-content:space-between;
+      justify-content: space-between;
       align-items:center;
-      font-size:18px;
-      opacity:0.7;
-      white-space:nowrap;
+      font-size: 18px;
+      opacity: 0.75;
+      white-space: nowrap;
+      gap: 16px;
+    }
+    #err{
+      font-weight: 800;
+      color: #b91c1c;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 980px;
     }
 
-    *{ -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    *{ -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
   </style>
 </head>
 
@@ -142,21 +163,47 @@
     </div>
 
     <div class="cards">
+      <!-- 今日 -->
       <section class="card">
         <h2>今日</h2>
-        <div class="wx"><span class="icon" id="i0">--</span><span id="w0">--</span></div>
+
+        <div class="wxline">
+          <div class="icon" id="i0">--</div>
+          <div class="wxtext" id="w0">--</div>
+        </div>
+        <div class="wxdetail" id="d0">--</div>
+
         <div class="grid">
-          <div class="row"><span class="label">最高 / 最低</span><span class="val" id="t0">-- / -- ℃</span></div>
-          <div class="row"><span class="label">降水確率（0-6/6-12/12-18/18-24）</span><span class="val" id="p0">--/--/--/--</span></div>
+          <div class="row">
+            <span class="label">最高 / 最低</span>
+            <span class="val" id="t0">-- / -- ℃</span>
+          </div>
+          <div class="row">
+            <span class="label">降水確率（0-6/6-12/12-18/18-24）</span>
+            <span class="val" id="p0">--/--/--/--</span>
+          </div>
         </div>
       </section>
 
+      <!-- 明日 -->
       <section class="card">
         <h2>明日</h2>
-        <div class="wx"><span class="icon" id="i1">--</span><span id="w1">--</span></div>
+
+        <div class="wxline">
+          <div class="icon" id="i1">--</div>
+          <div class="wxtext" id="w1">--</div>
+        </div>
+        <div class="wxdetail" id="d1">--</div>
+
         <div class="grid">
-          <div class="row"><span class="label">最高 / 最低</span><span class="val" id="t1">-- / -- ℃</span></div>
-          <div class="row"><span class="label">降水確率（0-6/6-12/12-18/18-24）</span><span class="val" id="p1">--/--/--/--</span></div>
+          <div class="row">
+            <span class="label">最高 / 最低</span>
+            <span class="val" id="t1">-- / -- ℃</span>
+          </div>
+          <div class="row">
+            <span class="label">降水確率（0-6/6-12/12-18/18-24）</span>
+            <span class="val" id="p1">--/--/--/--</span>
+          </div>
         </div>
       </section>
     </div>
@@ -167,127 +214,172 @@
     </div>
   </div>
 
-<script>
-(async () => {
-  const $ = (id) => document.getElementById(id);
-  const AREA_KEY = "東京"; // まずはこれで。ダメなら下の「東京地方」に変える
+  <script>
+    const $ = (id) => document.getElementById(id);
 
-  function parseJst(s){ return new Date(s); }
-  function ymd(d){
-    const y=d.getFullYear();
-    const m=String(d.getMonth()+1).padStart(2,"0");
-    const da=String(d.getDate()).padStart(2,"0");
-    return `${y}-${m}-${da}`;
-  }
-  function pickArea(ts, keyword){
-    if (!ts?.areas?.length) return null;
-    const i = ts.areas.findIndex(a => (a?.area?.name || "").includes(keyword));
-    return ts.areas[i >= 0 ? i : 0];
-  }
-
-  function iconFromWeatherText(t){
-    const s = (t || "");
-    if (s.includes("晴")) return "☀️";
-    if (s.includes("くもり") || s.includes("曇")) return "☁️";
-    if (s.includes("雨")) return "🌧️";
-    if (s.includes("雪")) return "❄️";
-    if (s.includes("雷")) return "⛈️";
-    return "🌤️";
-  }
-
-  function pad4(arr){
-    const a = (arr || []).slice(0,4);
-    while(a.length<4) a.push("--");
-    return a;
-  }
-
-  // ✅ 降水確率：最短＆安定（先頭4=今日、次の4=明日）
-  function popsTodayTomorrow(d0){
-    const tsP = d0.timeSeries?.[1];
-    const aP  = pickArea(tsP, AREA_KEY);
-    const pops = (aP?.pops || []).map(x => (x==="" ? "--" : x));
-    const today = pad4(pops.slice(0,4));
-    const tomo  = pad4(pops.slice(4,8));
-    return {today, tomo};
-  }
-
-  // ✅ 今日の最高/最低：data[0] の temps 時系列から日別max/minを計算
-  function tempsFromD0(d0){
-    const tsTemp = (d0.timeSeries || []).find(ts => ts?.areas?.[0]?.temps && ts?.timeDefines);
-    if (!tsTemp) return null;
-
-    const a = pickArea(tsTemp, AREA_KEY);
-    if (!a) return null;
-
-    const times = tsTemp.timeDefines || [];
-    const temps = a.temps || [];
-
-    const byDate = new Map(); // dateStr -> [temps...]
-    for (let i=0; i<times.length; i++){
-      const v = temps[i];
-      if (v === "" || v == null) continue;
-      const n = Number(v);
-      if (!Number.isFinite(n)) continue;
-      const d = ymd(parseJst(times[i]));
-      if (!byDate.has(d)) byDate.set(d, []);
-      byDate.get(d).push(n);
+    function jstDateKey(d){
+      // JST基準で YYYY-MM-DD を作る
+      const z = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+      const y = z.getFullYear();
+      const m = String(z.getMonth()+1).padStart(2,"0");
+      const da = String(z.getDate()).padStart(2,"0");
+      return `${y}-${m}-${da}`;
     }
 
-    const todayStr = ymd(new Date());
-    const tomoStr  = ymd(new Date(Date.now()+24*60*60*1000));
-
-    function get(dateStr){
-      const arr = byDate.get(dateStr);
-      if (!arr || !arr.length) return null;
-      return { max: Math.max(...arr), min: Math.min(...arr) };
+    function toKeyFromISO(iso){
+      // "2026-01-14T05:00:00+09:00" -> "2026-01-14"
+      return (iso || "").slice(0,10);
     }
 
-    return { today: get(todayStr), tomo: get(tomoStr) };
-  }
+    function pickArea(areas, preferNames){
+      if (!Array.isArray(areas)) return null;
+      // 1) 優先ワードに合うもの
+      for (const kw of preferNames){
+        const hit = areas.find(a => (a?.area?.name || "").includes(kw));
+        if (hit) return hit;
+      }
+      // 2) 東京が入るもの
+      const tokyo = areas.find(a => (a?.area?.name || "").includes("東京"));
+      if (tokyo) return tokyo;
+      // 3) 先頭
+      return areas[0] || null;
+    }
 
-  try{
-    const url = "https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json";
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error("fetch failed: " + res.status);
-    const data = await res.json();
+    function shortWx(text){
+      const t = (text || "").replace(/\s+/g," ").trim();
+      const m = t.match(/(晴れ|くもり|曇り|雨|雪|みぞれ|雷)/);
+      if (!m) return t ? t.slice(0,6) : "--";
+      return (m[1] === "曇り") ? "くもり" : m[1];
+    }
 
-    const d0 = data[0];
+    function iconFromWx(text, code){
+      // code があればそれ優先（気象庁の天気コードは多いのでざっくり分類）
+      const c = String(code || "");
+      if (c.startsWith("1")) return "☀️"; // 快晴/晴れ系が多い
+      if (c.startsWith("2")) return "⛅️";
+      if (c.startsWith("3")) return "☁️";
+      if (c.startsWith("4")) return "🌧️";
+      if (c.startsWith("5")) return "🌨️";
+      if (c.startsWith("6")) return "⛈️";
 
-    const rep = (d0.reportDatetime || "--").replace("T"," ").slice(0,16);
-    $("pub").textContent = "更新：" + rep;
+      // code が無いときは文字から推定
+      const s = (text || "");
+      if (s.includes("雪")) return "🌨️";
+      if (s.includes("雷")) return "⛈️";
+      if (s.includes("雨")) return "🌧️";
+      if (s.includes("くもり") || s.includes("曇")) return "☁️";
+      if (s.includes("晴")) return "☀️";
+      return "⛅️";
+    }
 
-    // 天気
-    const tsW = d0.timeSeries?.[0];
-    const aW = pickArea(tsW, AREA_KEY);
-    const weathers = aW?.weathers || [];
-    const w0 = weathers[0] ?? "--";
-    const w1 = weathers[1] ?? "--";
-    $("w0").textContent = w0;
-    $("w1").textContent = w1;
-    $("i0").textContent = iconFromWeatherText(w0);
-    $("i1").textContent = iconFromWeatherText(w1);
+    function setErr(msg){
+      $("err").textContent = msg || "";
+    }
 
-    // 降水確率（安定スライス）
-    const pops = popsTodayTomorrow(d0);
-    $("p0").textContent = pops.today.join("/");
-    $("p1").textContent = pops.tomo.join("/");
+    async function main(){
+      try{
+        setErr("");
 
-    // 気温（今日/明日）
-    const t = tempsFromD0(d0);
-    if (t?.today) $("t0").textContent = `${t.today.max} / ${t.today.min} ℃`;
-    else          $("t0").textContent = `-- / -- ℃`;
+        const res = await fetch("https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json", { cache: "no-store" });
+        if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
+        const json = await res.json();
+        const root = json?.[0];
+        if (!root) throw new Error("JSON structure unexpected");
 
-    if (t?.tomo)  $("t1").textContent = `${t.tomo.max} / ${t.tomo.min} ℃`;
-    else          $("t1").textContent = `-- / -- ℃`;
+        // 更新時刻
+        const report = root.reportDatetime ? root.reportDatetime.slice(0,16).replace("T"," ") : "--";
+        $("pub").textContent = `更新：${report}`;
 
-    // 30分更新
-    setTimeout(() => location.reload(), 30 * 60 * 1000);
+        const todayKey = jstDateKey(new Date());
+        const tomoKey  = jstDateKey(new Date(Date.now() + 24*60*60*1000));
 
-  }catch(e){
-    $("err").textContent = "表示エラー：" + (e?.message || e);
-  }
-})();
-</script>
+        const ts = root.timeSeries || [];
 
+        // ---- (A) 天気（weathers / weatherCodes） ----
+        const wxTS = ts.find(x => Array.isArray(x?.areas) && (x.areas[0]?.weathers || x.areas[0]?.weatherCodes));
+        if (!wxTS) throw new Error("weather timeSeries not found");
+        const wxArea = pickArea(wxTS.areas, ["東京地方", "東京"]);
+        const wxTimes = (wxTS.timeDefines || []).map(toKeyFromISO);
+
+        const wxByDate = new Map();
+        wxTimes.forEach((k, idx) => {
+          const w = wxArea?.weathers?.[idx];
+          const c = wxArea?.weatherCodes?.[idx];
+          if (k && (w || c)) wxByDate.set(k, { w, c });
+        });
+
+        const wToday = wxByDate.get(todayKey)?.w || "--";
+        const cToday = wxByDate.get(todayKey)?.c;
+        const wTomo  = wxByDate.get(tomoKey)?.w || "--";
+        const cTomo  = wxByDate.get(tomoKey)?.c;
+
+        $("i0").textContent = iconFromWx(wToday, cToday);
+        $("w0").textContent = shortWx(wToday);
+        $("d0").textContent = (wToday || "--").replace(/\s+/g," ").trim();
+
+        $("i1").textContent = iconFromWx(wTomo, cTomo);
+        $("w1").textContent = shortWx(wTomo);
+        $("d1").textContent = (wTomo || "--").replace(/\s+/g," ").trim();
+
+        // ---- (B) 降水確率（pops） ----
+        const popTS = ts.find(x => Array.isArray(x?.areas) && x.areas[0]?.pops);
+        const popArea = popTS ? pickArea(popTS.areas, ["東京地方", "東京"]) : null;
+        const popTimes = (popTS?.timeDefines || []).map(toKeyFromISO);
+
+        function popsForDate(dateKey){
+          // 0-6/6-12/12-18/18-24 の4つを集める（同日の4枠）
+          const out = [];
+          for (let i=0; i<popTimes.length; i++){
+            if (popTimes[i] === dateKey){
+              const v = popArea?.pops?.[i];
+              out.push((v === "" || v == null) ? "--" : String(v));
+            }
+          }
+          // 4個に満たないときは埋める
+          while (out.length < 4) out.push("--");
+          return out.slice(0,4).join("/");
+        }
+
+        $("p0").textContent = popTS ? popsForDate(todayKey) : "--/--/--/--";
+        $("p1").textContent = popTS ? popsForDate(tomoKey)  : "--/--/--/--";
+
+        // ---- (C) 気温（temps：最高/最低） ----
+        const tempTS = ts.find(x => Array.isArray(x?.areas) && x.areas[0]?.temps);
+        const tempArea = tempTS ? pickArea(tempTS.areas, ["東京", "東京地方"]) : null;
+        const tempTimes = (tempTS?.timeDefines || []).map(toKeyFromISO);
+
+        function tempHiLo(dateKey){
+          // temps は「最低/最高」順や日跨ぎが混ざることがあるので、
+          // 同日の値を拾って max/min を作る（空は除外）
+          const vals = [];
+          for (let i=0; i<tempTimes.length; i++){
+            if (tempTimes[i] === dateKey){
+              const v = tempArea?.temps?.[i];
+              const n = (v === "" || v == null) ? NaN : Number(v);
+              if (!Number.isNaN(n)) vals.push(n);
+            }
+          }
+          if (!vals.length) return { hi: "--", lo: "--" };
+          const hi = Math.max(...vals);
+          const lo = Math.min(...vals);
+          return { hi: String(hi), lo: String(lo) };
+        }
+
+        const t0 = tempTS ? tempHiLo(todayKey) : {hi:"--", lo:"--"};
+        const t1 = tempTS ? tempHiLo(tomoKey)  : {hi:"--", lo:"--"};
+
+        $("t0").textContent = `${t0.hi} / ${t0.lo} ℃`;
+        $("t1").textContent = `${t1.hi} / ${t1.lo} ℃`;
+
+        // 30分ごとに自動更新（サイネージ向け）
+        setTimeout(() => location.reload(), 30 * 60 * 1000);
+
+      }catch(e){
+        setErr(`表示エラー：${e?.message || e}`);
+      }
+    }
+
+    main();
+  </script>
 </body>
 </html>
