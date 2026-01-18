@@ -851,10 +851,18 @@ renderNews({ national: payload?.items || [], local: [] });
           "更新: " + (generatedAt ? new Date(generatedAt).toLocaleString("ja-JP") : "--");
 
         renderAlerts(payload?.alerts || []);
-        if (payload?.weather) renderWeather(payload.weather);
-        else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
 
-        renderNews(payload?.news || {});
+// ★ date → dateKey 変換（外部JSONPでも必要）
+const w = payload?.weather;
+if (w?.today?.date && !w.today.dateKey) w.today.dateKey = w.today.date;
+if (w?.tomorrow?.date && !w.tomorrow.dateKey) w.tomorrow.dateKey = w.tomorrow.date;
+if (Array.isArray(w?.week)) w.week.forEach(d => { if (d?.date && !d.dateKey) d.dateKey = d.date; });
+
+if (w) renderWeather(w);
+else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
+
+// ★ news じゃなく items（あなたのGASは items で返してる）
+renderNews({ national: payload?.items || [], local: [] });
 
       }catch(err){
         showDataError("データ取得エラー: " + (err?.message || String(err)), dataUrl);
