@@ -808,10 +808,19 @@ const maxText = normDeg(day?.tempMax);
               "更新: " + (generatedAt ? new Date(generatedAt).toLocaleString("ja-JP") : "--");
 
             renderAlerts(payload?.alerts || []);
-            if (payload?.weather) renderWeather(payload.weather);
-            else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
 
-            renderNews(payload?.news || {});
+// ★ ここ追加：date → dateKey に寄せる（HTML側で吸収）
+const w = payload?.weather;
+if (w?.today?.date && !w.today.dateKey) w.today.dateKey = w.today.date;
+if (w?.tomorrow?.date && !w.tomorrow.dateKey) w.tomorrow.dateKey = w.tomorrow.date;
+if (Array.isArray(w?.week)) w.week.forEach(d => { if (d?.date && !d.dateKey) d.dateKey = d.date; });
+
+if (w) renderWeather(w);
+else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
+
+// ★ ここ置き換え：news じゃなく items を使う
+renderNews({ national: payload?.items || [], local: [] });
+            
           })
           .withFailureHandler((err)=>{
             showDataError("データ取得エラー: " + (err?.message || String(err)));
