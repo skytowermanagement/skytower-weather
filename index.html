@@ -2,386 +2,854 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=1380, height=776, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <meta http-equiv="Cache-Control" content="no-store" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-  <title>SkyTower Weather</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>サイネージ：天気・ニュース</title>
+  <style>
+    :root{
+      --bg1:#083645;
+      --bg2:#0a3f4f;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --shadow: 0 8px 24px rgba(0,0,0,.18);
+      --radius: 18px;
 
-<style>
-  html, body{
-    width: 1380px;
-    height: 776px;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
+      --hTitle: 38px;
+      --hClock: 92px;
 
-    /* 背景：濃いブルー */
-    background: #0b1b33; /* 深いネイビー */
-    color: #ffffff;
+      --wDayLabel: 36px;
+      --wDate: 30px;
+      --wMain: 34px;
+      --wSub: 28px;
+      --wSmall: 22px;
 
-    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Yu Gothic", sans-serif;
-  }
+      --nTitle: 42px;
+--nRowTitle: 36px;
+--nRowMeta: 26px;
 
-  #app{
-    width: 1380px;
-    height: 776px;
-    box-sizing: border-box;
-    padding: 26px 56px;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    gap: 16px;
-  }
+      /* アイコンは“枠”を固定（種類で小さく見えないように） */
+      --iconToday: 300px;
+      --iconWeek: 80px;
+    }
 
-  .top{
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 16px;
-  }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      background: radial-gradient(1400px 900px at 50% -10%, var(--bg2), var(--bg1));
+      color:#0f172a;
+    }
 
-  .title{
-    font-size: 40px;
-    font-weight: 900;
-    letter-spacing: 0.01em;
-    line-height: 1.1;
-    color: #ffffff;
-  }
+    .wrap{
+      width:100vw;
+      height:100vh;
+      padding:18px 22px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
 
-  .meta{
-    font-size: 22px;
-    font-weight: 700;
-    opacity: 0.85;
-    white-space: nowrap;
-    color: #e5e7eb;
-  }
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:16px;
+    }
 
-  .cards{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-    min-height: 0;
-  }
+    .leftInfo{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+    }
 
-  .card{
-    border-radius: 22px;
+    .badgeInfo{
+      display:flex; align-items:center; gap:10px;
+      color: rgba(255,255,255,.95);
+      font-weight: 900;
+      letter-spacing:.5px;
+    }
+    .dot{ width:10px;height:10px;border-radius:50%; background:#22c55e; box-shadow:0 0 0 6px rgba(34,197,94,.18); }
+    #updatedLine{
+      color: rgba(255,255,255,.9);
+      font-weight: 800;
+      font-size: 20px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
 
-    /* カード：濃いブルー背景に馴染むダーク寄り */
-    background: rgba(255,255,255,0.10);
-    border: 1px solid rgba(255,255,255,0.16);
+    .alertBar{
+      display:none;
+      background: rgba(255, 80, 80, .18);
+      border: 1px solid rgba(255, 80, 80, .35);
+      color: rgba(255,255,255,.95);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-weight: 900;
+      font-size: 22px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 920px;
+    }
 
-    padding: 22px 24px;
-    display: grid;
-    grid-template-rows: auto auto auto auto 1fr;
-    gap: 10px;
-    min-height: 0;
-  }
+/* 防災：カード内表示（白背景に合わせる） */
+.alertInCard{
+  max-width: 100%;
+  margin: 6px 0 8px;
+  background: #fff1f2;          /* うす赤 */
+  border: 1px solid #fecdd3;
+  color: #9f1239;               /* 濃赤文字 */
+  font-size: 20px;
+}
 
-  .card h2{
-    margin: 0;
-    font-size: 46px;
-    font-weight: 900;
-    letter-spacing: 0.02em;
-    color: #ffffff;
-  }
+    .clockBox{
+      text-align:right;
+      color:#fff;
+      font-weight:900;
+      line-height:1;
+      flex:0 0 auto;
+    }
+    #clockTime{ font-size: var(--hClock); }
 
-  .wxline{
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    min-height: 0;
-    margin-top: 2px;
-  }
+    .grid{
+      flex:1;
+      display:grid;
+      grid-template-columns: 0.95fr 1.05fr; /* ニュースを少し広く */
+      gap:16px;
+      min-height:0;
+    }
 
-  .icon{
-    font-size: 220px;
-    line-height: 1;
-    width: 260px;
-    text-align: center;
-    flex: 0 0 260px;
-    filter: drop-shadow(0 8px 14px rgba(0,0,0,0.25));
-  }
+    .card{
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px 18px;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+    }
 
-  .wxtext{
-    font-size: 84px;
-    font-weight: 900;
-    letter-spacing: 0.02em;
-    line-height: 1.05;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 420px;
-    color: #ffffff;
-  }
+    .cardHeader{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom: 8px;
+      gap:10px;
+    }
+    .cardTitle{
+      font-size: var(--hTitle);
+      font-weight: 900;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .cardMeta{
+      font-size: 20px;
+      color: var(--muted);
+      font-weight: 800;
+      white-space:nowrap;
+    }
+    .divider{ height:1px; background: var(--line); margin: 8px 0 10px; }
 
-  .wxdetail{
-    font-size: 34px;
-    font-weight: 800;
-    opacity: 0.92;
-    line-height: 1.22;
-    color: #e5e7eb;
+    /* ===== Weather ===== */
+    .wxBody{ display:flex; flex-direction:column; gap:10px; min-height:0; }
 
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
-    min-height: calc(34px * 1.22 * 2);
-  }
+    .wxTempRow{
+  display:flex;
+  gap:10px;
+  align-items:baseline;
+}
 
-  .grid{
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-    align-content: start;
-    margin-top: 2px;
-  }
+.wxTempRow > .metricLine{
+  flex:1;
+  margin:0;
+}
 
-  .row{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    font-size: 34px;
-    line-height: 1.2;
-  }
 
-  .label{
-    opacity: 0.85;
-    font-weight: 800;
-    color: #d1d5db;
-  }
+    /* 最高=赤 / 最低=青 */
+.tMax{ color:#dc2626; font-weight:1000; }
+.tMin{ color:#2563eb; font-weight:1000; }
 
-  .val{
-    font-weight: 900;
-    white-space: nowrap;
-    text-align: right;
-    flex: 0 0 auto;
-    color: #ffffff;
-  }
+/* 今日明日のメトリクス */
+.wxMetrics{
+  font-size: 30px;
+  font-weight: 900;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  color:#111827;
+}
+.wxMetrics span{ white-space:nowrap; }
 
-  .footer{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 18px;
-    opacity: 0.8;
-    white-space: nowrap;
-    gap: 16px;
-    color: #cbd5e1;
-  }
+.wxMetrics .metricLine{ white-space:nowrap; }
 
-  #dbg{
-    font-size: 14px;
-    opacity: 0.6;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 980px;
-    color: #cbd5e1;
-  }
+/* 週間の気温 */
+.wxWeekTemps{ font-size: 24px; font-weight: 900; }
 
-  #err{
-    color: #fecaca;
-    font-weight: 800;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 420px;
-  }
+    .wxTodayTomorrow{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
 
-  *{ -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-</style>
+    .wxBox{
+      border:1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 10px 10px;
+      min-height: 245px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .wxTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:baseline;
+      font-weight: 900;
+      gap:10px;
+    }
+    .wxLabel{ font-size: var(--wDayLabel); }
+    .wxDate{ font-size: var(--wDate); color:#111827; opacity:.95; }
+
+    /* アイコンを大きく、右の空きに情報を寄せる */
+    .wxMid{
+      display:grid;
+      grid-template-columns: var(--iconToday) 1fr;
+      gap: 12px;
+      align-items:stretch;
+      flex:1;
+      min-height:0;
+    }
+    .wxIconBox{
+      width: var(--iconToday);
+      height: var(--iconToday);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .wxIcon{
+      width: 100%;
+      height: 100%;
+    }
+    .wxRight{
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      min-width:0;
+    }
+
+    /* 天気テキスト：先頭ワードを大きく */
+.wxText{
+  font-weight: 900;
+  line-height: 1.12;
+  display: block;         /* JSで中身をHTMLにするので */
+  white-space: normal;    /* 2行OK */
+  overflow: hidden;
+}
+
+.wxText .wxMainWord{
+  font-size: 40px;
+  font-weight: 1000;
+  display: block;     /* ←主天気を必ず1行目に */
+  margin-right: 0;
+}
+
+.wxText .wxTail{
+  font-size: 28px;
+  font-weight: 900;
+  opacity: .95;
+  display: block;     /* ←補足を必ず2行目に */
+}
+
+.wxText{
+  font-weight: 900;
+  line-height: 1.12;
+  white-space: normal;
+  overflow: visible;     /* ← hidden をやめる */
+  word-break: break-word;
+}
+
+.wxText .wxMainWord{
+  display:block;
+  margin:0 0 4px 0;
+}
+
+.wxText .wxTail{
+  display:block;
+  line-height: 1.18;
+}
+
+/* 週間テキスト：2行クランプを維持 */
+.wxWeekText{
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.12;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  white-space: normal;
+}
+
+.wxWeekText .wxMainWord{ font-size: 24px; font-weight: 1000; margin-right: 6px; }
+.wxWeekText .wxTail{ font-size: 20px; font-weight: 900; opacity: .95; }
+
+    /* 天気テキスト：長いときだけ小さくする */
+.wxText.is-long  .wxTail{ font-size: 24px; }
+.wxText.is-xlong .wxTail{ font-size: 21px; }
+
+    .wxWeek{
+      border-top:1px dashed var(--line);
+      padding-top: 10px;
+    }
+
+    /* 週間：明後日〜5日（見出しなし） */
+    .wxWeekRow{
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap:10px;
+    }
+    .wxWeekItem{
+      border:1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+    }
+    .wxWeekHead{
+      font-weight: 900;
+      font-size: 22px;
+      color:#111827;
+      white-space:nowrap;
+    }
+    .wxWeekIconBox{
+      width: var(--iconWeek);
+      height: var(--iconWeek);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .wxWeekIcon{
+      width:100%; height:100%;
+    }
+    
+  
+
+    /* ===== News ===== */
+    .newsBody{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:0;
+    }
+    .newsList{
+      list-style:none;
+      padding:0;
+      margin:0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      overflow:hidden;
+    }
+    .newsItem{
+      border:1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 12px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+    }
+    .newsTitle{
+      font-size: var(--nRowTitle);
+      font-weight: 900;
+      line-height:1.15;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis; /* 右切れ防止 */
+      max-width: 100%;
+    }
+    .newsMeta{
+      font-size: var(--nRowMeta);
+      color: var(--muted);
+      font-weight: 800;
+      display:flex;
+      gap:10px;
+      flex-wrap:nowrap;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      min-width:0;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      padding:2px 10px;
+      border-radius: 999px;
+      font-size: 18px;
+      font-weight: 900;
+      flex:0 0 auto;
+    }
+    .chipNational{ background: rgba(37,99,235,.12); color:#1d4ed8; border:1px solid rgba(37,99,235,.25); }
+    .chipLocal{ background: rgba(16,185,129,.12); color:#047857; border:1px solid rgba(16,185,129,.25); }
+
+    a{ color:inherit; text-decoration:none; }
+
+    .error{
+      background:#fee2e2;
+      color:#7f1d1d;
+      border:1px solid #fecaca;
+      padding:10px 12px;
+      border-radius: 12px;
+      font-weight: 900;
+      white-space:pre-wrap;
+    }
+  </style>
 </head>
 
 <body>
-  <div id="app">
-    <div class="top">
-      <div class="title">東京（江東区）天気</div>
-      <div class="meta" id="pub">更新：--</div>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="leftInfo">
+        <div class="badgeInfo"><span class="dot"></span>Information</div>
+        <div id="updatedLine">更新: --</div>
+        <div id="alertBar" class="alertBar"></div>
+      </div>
+
+      <div class="clockBox">
+        <div id="clockTime">--:--</div>
+      </div>
     </div>
 
-    <div class="cards">
-      <section class="card">
-        <h2>今日</h2>
-        <div class="wxline">
-          <div class="icon" id="i0">--</div>
-          <div class="wxtext" id="s0">--</div>
-        </div>
-        <div class="wxdetail" id="d0">--</div>
-        <div class="grid">
-          <div class="row"><span class="label">最高 / 最低</span><span class="val" id="t0">-- / -- ℃</span></div>
-          <div class="row"><span class="label">降水確率（0-6/6-12/12-18/18-24）</span><span class="val" id="p0">--/--/--/--</span></div>
-        </div>
-      </section>
+    <div class="grid">
+      <!-- Weather -->
+      <div class="card">
+  <div class="cardHeader">
+    <div class="cardTitle">天気（江東区 / 東京都地方）</div>
+    <div class="cardMeta">気象庁</div>
+  </div>
 
-      <section class="card">
-        <h2>明日</h2>
-        <div class="wxline">
-          <div class="icon" id="i1">--</div>
-          <div class="wxtext" id="s1">--</div>
-        </div>
-        <div class="wxdetail" id="d1">--</div>
-        <div class="grid">
-          <div class="row"><span class="label">最高 / 最低</span><span class="val" id="t1">-- / -- ℃</span></div>
-          <div class="row"><span class="label">降水確率（0-6/6-12/12-18/18-24）</span><span class="val" id="p1">--/--/--/--</span></div>
-        </div>
-      </section>
-    </div>
+  <div id="alertBarInCard" class="alertBar alertInCard"></div>
 
-    <div class="footer">
-      <div>出典：気象庁（forecast JSON）</div>
-      <div id="dbg"></div>
-      <div id="err"></div>
+  <div id="weatherBody" class="wxBody"></div>
+</div>
+
+      <!-- News -->
+      <div class="card">
+        <div class="cardHeader">
+          <div class="cardTitle">ニュース</div>
+        </div>
+        <div id="newsBody" class="newsBody"></div>
+      </div>
     </div>
   </div>
 
   <script>
-    const URL_JMA = "https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json";
-    const el = (id) => document.getElementById(id);
-    const setErr = (msg) => (el("err").textContent = msg || "");
-    const setDbg = (msg) => (el("dbg").textContent = msg || "");
+    // ★あなたの /exec(B)（固定でOK）
+    const WEBAPP_EXEC_URL = "https://script.google.com/macros/s/AKfycbxUED0A12Xxg0VTt0Est08D47XCArDuC-ku6fLXnPzfA3_Fs6pxAm94PmkeKVNrlsu4/exec";
 
-    const fmtDateKey = (iso) => iso ? String(iso).slice(0, 10) : "";
+    // ---------- util ----------
+    const pad2 = (n)=> String(n).padStart(2,"0");
+    const escapeHtml = (s)=> String(s ?? "")
+      .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
 
-    // ★日付ズレ対策：ISO日付文字列をUTCで加算して、"YYYY-MM-DD" を作る（タイムゾーンの影響を受けない）
-    const addDays = (ymd, n) => {
-      const [y,m,d] = ymd.split("-").map(Number);
-      const dt = new Date(Date.UTC(y, m-1, d));
-      dt.setUTCDate(dt.getUTCDate() + n);
-      return dt.toISOString().slice(0, 10);
-    };
+    const DOW = ["日","月","火","水","木","金","土"];
 
-    const iconFromText = (t) => {
-      const s = (t || "").toLowerCase();
-      if (s.includes("雷") || s.includes("かみなり") || s.includes("雷雨")) return "⛈️";
-      if (s.includes("雪") || s.includes("みぞれ")) return "❄️";
-      if (s.includes("雨") || s.includes("あめ")) return "🌧️";
-      if (s.includes("晴") || s.includes("はれ")) return "☀️";
-      if (s.includes("くも") || s.includes("曇")) return "☁️";
-      return "🌤️";
-    };
-
-    const shortWx = (t) => {
-      const s = (t || "").trim();
-      const m = s.match(/^(晴れ|くもり|曇り|雨|雪|雷)/);
-      if (m) return m[1].replace("曇り","くもり");
-      return s.split(/[ 　]/).filter(Boolean)[0] || s || "--";
-    };
-
-    function pickAreaIndex(ts, preferName){
-      if (!ts || !ts.areas) return 0;
-      const a = ts.areas;
-      const idx = a.findIndex(x => (x.area && x.area.name && x.area.name.includes(preferName)));
-      return idx >= 0 ? idx : 0;
+    function fmtMDNoZero(dateKey){ // "yyyy-mm-dd" -> "m/d"
+      if(!dateKey) return "--/--";
+      const [y,m,d] = dateKey.split("-").map(Number);
+      return `${m}/${d}`;
+    }
+    function fmtMDWithDow(dateKey){ // "1/18(日)"
+      if(!dateKey) return "--/--";
+      const dt = new Date(dateKey + "T00:00:00+09:00");
+      const md = fmtMDNoZero(dateKey);
+      return `${md}（${DOW[dt.getDay()]}）`;
+    }
+    function fmtTimeHHMM(iso){
+      if(!iso) return "--:--";
+      const d = new Date(iso);
+      return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
     }
 
-    function buildByDate(times, values){
-      const by = {};
-      for (let i = 0; i < Math.min(times.length, values.length); i++){
-        const k = fmtDateKey(times[i]);
-        if (!k) continue;
-        if (!by[k]) by[k] = [];
-        by[k].push(values[i]);
+    // ---------- Weather icon (simple) ----------
+
+    function wxKindFromCode(code){
+      if(code == null) return "unknown";
+      const n = Number(code);
+      if(Number.isNaN(n)) return "unknown";
+      if(n >= 100 && n < 200) return "sun";
+      if(n >= 200 && n < 300) return "cloud";
+      if(n >= 300 && n < 400) return "rain";
+      if(n >= 400 && n < 500) return "snow";
+      return "unknown";
+    }
+
+function wxLabelFromKind(kind){
+  if(kind==="sun") return "晴れ";
+  if(kind==="cloud") return "くもり";
+  if(kind==="rain") return "雨";
+  if(kind==="snow") return "雪";
+  return "—";
+}
+
+function wxTextHtml(raw, kind, clsMain="wxMainWord", clsTail="wxTail"){
+  const sp = splitWxText(raw, kind);
+
+  const head = sp.head || "—";
+  const tail0 = (sp.tail || "").trim();
+
+  const headHtml = `<span class="${clsMain}">${escapeHtml(head)}</span>`;
+  if(!tail0) return headHtml;
+
+  // 改行したいワード（必要なら追加OK）
+  const BREAK_RE = /(昼過ぎから|夕方から|夜遅くから|明け方から|朝から|昼前から|夜から)/g;
+
+  // ここで改行マークを入れて → <br> に変換（切り捨てなし）
+  const tailWithNL = tail0.replace(BREAK_RE, "\n$1");
+  const tailHtml = escapeHtml(tailWithNL).replace(/\n/g, "<br>");
+
+  return `${headHtml}<span class="${clsTail}">${tailHtml}</span>`;
+}
+
+// 末尾に "…" を付けて切る（超シンプル）
+function clampText_(s, maxLen){
+  s = (s || "").trim();
+  if(!s) return "";
+  if(s.length <= maxLen) return s;
+  return s.slice(0, Math.max(0, maxLen - 1)) + "…";
+}
+
+    function wxIconSvg(kind){
+      if(kind === "sun"){
+        return `
+          <svg viewBox="0 0 100 100" width="100%" height="100%">
+            <circle cx="50" cy="50" r="18" fill="#f59e0b"></circle>
+            ${[0,45,90,135,180,225,270,315].map(a=> {
+              const rad = a*Math.PI/180;
+              const x1 = 50 + Math.cos(rad)*28, y1 = 50 + Math.sin(rad)*28;
+              const x2 = 50 + Math.cos(rad)*42, y2 = 50 + Math.sin(rad)*42;
+              return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#f59e0b" stroke-width="6" stroke-linecap="round"></line>`;
+            }).join("")}
+          </svg>`;
       }
-      return by;
+      if(kind === "cloud"){
+  return `
+    <svg viewBox="-5 -5 150 120" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      <path d="M35 70c-12 0-22-9-22-20s10-20 22-20c3 0 6 1 9 2C48 22 59 14 73 14c18 0 32 13 34 30 10 2 18 10 18 20 0 12-10 22-22 22H35z"
+        fill="#94a3b8"></path>
+    </svg>`;
+}
+      if(kind === "rain"){
+  return `
+    <svg viewBox="0 0 120 130" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      <path d="M35 72c-12 0-22-9-22-20s10-20 22-20c3 0 6 1 9 2C48 24 59 16 73 16c18 0 32 13 34 30 10 2 18 10 18 20 0 12-10 22-22 22H35z"
+        fill="#94a3b8"></path>
+      ${[40,60,80].map(x=>`<line x1="${x}" y1="86" x2="${x-6}" y2="110" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"></line>`).join("")}
+    </svg>`;
+}
+      if(kind === "snow"){
+  return `
+    <svg viewBox="0 0 120 130" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      <path d="M35 72c-12 0-22-9-22-20s10-20 22-20c3 0 6 1 9 2C48 24 59 16 73 16c18 0 32 13 34 30 10 2 18 10 18 20 0 12-10 22-22 22H35z"
+        fill="#94a3b8"></path>
+      ${[44,66,88].map(x=>`<circle cx="${x}" cy="100" r="6" fill="#60a5fa"></circle>`).join("")}
+    </svg>`;
+}
+      return `
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+          <circle cx="50" cy="50" r="40" fill="#e5e7eb"></circle>
+          <text x="50" y="62" text-anchor="middle" font-size="54" font-weight="900" fill="#64748b">?</text>
+        </svg>`;
     }
 
-    function maxMinFromTemps(list){
-      const nums = (list || []).map(x => Number(x)).filter(n => Number.isFinite(n));
-      if (!nums.length) return {max:null, min:null};
-      return {max: Math.max(...nums), min: Math.min(...nums)};
+const normDeg = (v) => {
+  if (v == null || v === "") return "—";
+  return String(v).replace(/°/g, "") + "°";
+};
+
+    function metricLine(label, val, suffix="", cls=""){
+  const v = (val == null || val === "") ? "—" : String(val);
+  return `<div class="metricLine ${cls}">${label} ${escapeHtml(v)}${suffix}</div>`;
+}
+
+// 例：「晴れ 夕方からくもり 所により…」→ head="晴れ", tail="夕方からくもり 所により…"
+function splitWxText(raw, kind){
+  const t = (raw || "").replace(/\s+/g," ").trim();
+  if(!t) return { head: wxLabelFromKind(kind), tail: "" };
+
+  const m = t.match(/^(晴れ|くもり|曇り|雨|雪)(.*)$/);
+  if(m){
+    const head = (m[1] === "曇り") ? "くもり" : m[1];
+    const tail = (m[2] || "").trim();
+    return { head, tail };
+  }
+
+  const parts = t.split(" ");
+  return { head: parts[0], tail: parts.slice(1).join(" ") };
+}
+
+    function renderWxBox(label, day){
+  const kind = wxKindFromCode(day?.weatherCode);
+  const rawText = (day?.weatherText || "").replace(/\s+/g," ").trim();
+  const title = rawText || wxLabelFromKind(kind);
+
+  
+
+const minText = normDeg(day?.tempMin);
+const maxText = normDeg(day?.tempMax);
+  const len = title.length;
+  const textClass =
+    (len >= 18) ? "wxText is-xlong" :
+    (len >= 13) ? "wxText is-long" :
+    "wxText";
+
+  return `
+    <div class="wxBox">
+      <div class="wxTop">
+        <div class="wxLabel">${escapeHtml(label)}</div>
+        <div class="wxDate">${fmtMDWithDow(day?.dateKey)}</div>
+      </div>
+
+      <div class="wxMid">
+        <div class="wxIconBox">
+          <div class="wxIcon" title="${escapeHtml(title)}">${wxIconSvg(kind)}</div>
+        </div>
+
+        <div class="wxRight">
+          <div class="${textClass}" title="${escapeHtml(title)}">
+            ${wxTextHtml(rawText, kind, "wxMainWord","wxTail")}
+          </div>
+
+          <div class="wxMetrics">
+  ${metricLine("最高", maxText, "", "tMax")}
+  ${metricLine("最低", minText, "", "tMin")}
+  ${metricLine("降水", day?.pop, "%")}
+</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+    function renderWeekItem(day){
+  const kind = wxKindFromCode(day?.weatherCode);
+  const rawText = (day?.weatherText || "").replace(/\s+/g," ").trim();
+  const title = rawText || wxLabelFromKind(kind);
+
+  const minText = normDeg(day?.tempMin);
+const maxText = normDeg(day?.tempMax);
+
+  const head = fmtMDWithDow(day?.dateKey);
+
+  return `
+    <div class="wxWeekItem">
+      <div class="wxWeekHead">${head}</div>
+      <div class="wxWeekIconBox">
+        <div class="wxWeekIcon">${wxIconSvg(kind)}</div>
+      </div>
+
+      <div class="wxWeekTemps">
+  <span class="tMax">↑${maxText}</span>
+  <span class="tMin">↓${minText}</span>
+</div>
+    </div>
+  `;
+}
+
+    function renderWeather(weather){
+      const body = document.getElementById("weatherBody");
+      if(!weather || weather.error){
+        body.innerHTML = `<div class="error">天気データを取得できません\n${escapeHtml(weather?.error || "")}</div>`;
+        return;
+      }
+
+      const today = weather.today || {};
+      const tomorrow = weather.tomorrow || {};
+      const week = Array.isArray(weather.week) ? weather.week.slice(0,5) : []; // 明後日〜5日（Code.gs側）
+
+      body.innerHTML = `
+        <div class="wxTodayTomorrow">
+          ${renderWxBox("今日", today)}
+          ${renderWxBox("明日", tomorrow)}
+        </div>
+
+        <div class="wxWeek">
+          <div class="wxWeekRow">
+            ${week.map(renderWeekItem).join("")}
+          </div>
+        </div>
+      `;
     }
 
-    const fmtMM = (mm) => {
-      const a = (mm.max == null) ? "--" : String(mm.max);
-      const b = (mm.min == null) ? "--" : String(mm.min);
-      return `${a} / ${b} ℃`;
-    };
+    // ---------- Alerts ----------
+    function renderAlerts(alerts){
+  const barTop = document.getElementById("alertBar");
+  const barCard = document.getElementById("alertBarInCard");
 
-    const fmtPops = (arr) => {
-      const a = [arr?.[0], arr?.[1], arr?.[2], arr?.[3]].map(v => {
-        if (v == null || v === "") return "--";
-        return String(v);
+  const hide = (el)=>{ if(!el) return; el.style.display="none"; el.textContent=""; };
+  const show = (el, text)=>{ if(!el) return; el.textContent=text; el.style.display="block"; };
+
+  if(!alerts || alerts.length === 0){
+    hide(barTop);
+    hide(barCard);
+    return;
+  }
+  const text = alerts.slice(0,3).map(a => `【${a.area}】${a.title}`).join(" / ");
+
+  // 今回の要望：天気カード内に表示したい
+  hide(barTop);
+  show(barCard, text);
+}
+
+    // ---------- News ----------
+    function renderNews(news){
+      const body = document.getElementById("newsBody");
+      const n = Array.isArray(news?.national) ? news.national : [];
+      const l = Array.isArray(news?.local) ? news.local : [];
+      const items = [
+        ...n.map(x => ({...x, chip:"全国"})),
+        ...l.map(x => ({...x, chip:"ローカル"}))
+      ];
+
+      if(items.length === 0){
+        body.innerHTML = `<div class="error">ニュースを取得できません（RSS）</div>`;
+        return;
+      }
+
+      body.innerHTML = `
+        <ul class="newsList">
+          ${items.map(it=>{
+            const title = it?.title || "";
+            const link = it?.link || "";
+            const source = it?.source || "";
+            const time = fmtTimeHHMM(it?.time);
+            const chip = it?.chip || "";
+
+            const chipClass = (chip==="ローカル") ? "chip chipLocal" : "chip chipNational";
+
+            return `
+              <li class="newsItem">
+                <div class="newsTitle" title="${escapeHtml(title)}">
+                  ${link ? `<a href="${escapeHtml(link)}" target="_blank" rel="noreferrer">${escapeHtml(title)}</a>` : escapeHtml(title)}
+                </div>
+                <div class="newsMeta" title="${escapeHtml(chip)} / ${escapeHtml(source)} / ${time}">
+                  <span class="${chipClass}">${escapeHtml(chip)}</span>
+                  <span>${escapeHtml(source)}</span>
+                  <span>${time}</span>
+                </div>
+              </li>
+            `;
+          }).join("")}
+        </ul>
+      `;
+    }
+
+    // ---------- JSONP ----------
+    function loadJsonp(url, cbName, timeoutMs=12000){
+      return new Promise((resolve, reject)=>{
+        const script = document.createElement("script");
+        const timer = setTimeout(()=>{
+          cleanup();
+          reject(new Error("timeout"));
+        }, timeoutMs);
+
+        function cleanup(){
+          clearTimeout(timer);
+          script.remove();
+          try{ delete window[cbName]; }catch(_){}
+        }
+
+        window[cbName] = (data)=>{
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = ()=>{
+          cleanup();
+          reject(new Error("load failed"));
+        };
+
+        const sep = url.includes("?") ? "&" : "?";
+        script.src = url + sep + "callback=" + encodeURIComponent(cbName) + "&_=" + Date.now();
+        document.head.appendChild(script);
       });
-      return a.join("/");
-    };
-
-    async function main(){
-      setErr("");
-      setDbg("");
-
-      const res = await fetch(URL_JMA, { cache: "no-store" });
-      if (!res.ok) throw new Error("fetch failed: " + res.status);
-
-      const json = await res.json();
-      const data = Array.isArray(json) ? json[0] : json;
-      if (!data || !data.timeSeries) throw new Error("unexpected JSON");
-
-      const pub = data.reportDatetime || data.publicTime || "";
-      el("pub").textContent = pub ? ("更新：" + pub.slice(0,16).replace("T"," ")) : "更新：--";
-
-      const tsList = data.timeSeries || [];
-
-      // 天気
-      const tsWeather = tsList.find(ts => ts.areas && ts.areas[0] && ts.areas[0].weathers) || tsList[0];
-      const areaWeatherIdx = pickAreaIndex(tsWeather, "東京地方");
-      const wTimes = (tsWeather.timeDefines || []);
-      const wVals  = (tsWeather.areas?.[areaWeatherIdx]?.weathers) || [];
-      const wByDate = buildByDate(wTimes, wVals);
-
-      // 降水確率
-      const tsPop = tsList.find(ts => ts.areas && ts.areas[0] && ts.areas[0].pops);
-      const areaPopIdx = tsPop ? pickAreaIndex(tsPop, "東京地方") : 0;
-      const pTimes = tsPop ? (tsPop.timeDefines || []) : [];
-      const pVals  = tsPop ? (tsPop.areas?.[areaPopIdx]?.pops || []) : [];
-      const pByDate = buildByDate(pTimes, pVals);
-
-      // 気温
-      const tsTemp = tsList.find(ts => ts.areas && ts.areas[0] && ts.areas[0].temps);
-      const areaTempIdx = tsTemp ? pickAreaIndex(tsTemp, "東京地方") : 0;
-      const tTimes = tsTemp ? (tsTemp.timeDefines || []) : [];
-      const tVals  = tsTemp ? (tsTemp.areas?.[areaTempIdx]?.temps || []) : [];
-      const tByDate = buildByDate(tTimes, tVals);
-
-      // ★ここがポイント：today/tomo をJSTでズラさない（toISOStringは使わない）
-      const baseKey =
-        fmtDateKey(data.reportDatetime) ||
-        fmtDateKey(wTimes[0]) ||
-        fmtDateKey(pTimes[0]) ||
-        fmtDateKey(tTimes[0]);
-
-      if (!baseKey) throw new Error("date key not found");
-      const key0 = baseKey;
-      const key1 = addDays(baseKey, 1);
-
-      // 天気表示
-      const w0full = (wByDate[key0]?.[0]) ?? (wVals[0] ?? "--");
-      const w1full = (wByDate[key1]?.[0]) ?? (wVals[1] ?? "--");
-
-      el("i0").textContent = iconFromText(w0full);
-      el("s0").textContent = shortWx(w0full);
-      el("d0").textContent = w0full;
-
-      el("i1").textContent = iconFromText(w1full);
-      el("s1").textContent = shortWx(w1full);
-      el("d1").textContent = w1full;
-
-      // 降水確率（4区分）
-      el("p0").textContent = fmtPops(pByDate[key0]);
-      el("p1").textContent = fmtPops(pByDate[key1]);
-
-      // 最高/最低（その日のtempsからmax/min）
-      el("t0").textContent = fmtMM(maxMinFromTemps(tByDate[key0]));
-      el("t1").textContent = fmtMM(maxMinFromTemps(tByDate[key1]));
-
-      setDbg(`area=東京地方 / today=${key0} / tomo=${key1} / report=${(data.reportDatetime||"").slice(0,16)}`);
-
-      setTimeout(() => location.reload(), 30 * 60 * 1000);
     }
 
-    main().catch(e => {
-      setErr("表示エラー：" + (e?.message || String(e)));
-      setTimeout(() => location.reload(), 60 * 1000);
-    });
+    function showDataError(msg, url=""){
+      const e = `<div class="error">${escapeHtml(msg)}${url ? "\nURL: " + escapeHtml(url) : ""}</div>`;
+      document.getElementById("weatherBody").innerHTML = e;
+      document.getElementById("newsBody").innerHTML = e;
+    }
+
+    /** =========================
+     *  Clock + Refresh
+     *  ========================= */
+    function tickClock(){
+      const now = new Date();
+      document.getElementById("clockTime").textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+    }
+
+    async function refresh(){
+      // 1) GAS内プレビューなら google.script.run が最優先
+      if (window.google?.script?.run?.withSuccessHandler) {
+        google.script.run
+          .withSuccessHandler((payload)=>{
+            const generatedAt = payload?.generatedAt || payload?.weather?.updatedAt || null;
+            document.getElementById("updatedLine").textContent =
+              "更新: " + (generatedAt ? new Date(generatedAt).toLocaleString("ja-JP") : "--");
+
+            renderAlerts(payload?.alerts || []);
+            if (payload?.weather) renderWeather(payload.weather);
+            else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
+
+            renderNews(payload?.news || {});
+          })
+          .withFailureHandler((err)=>{
+            showDataError("データ取得エラー: " + (err?.message || String(err)));
+          })
+          .getData();
+        return;
+      }
+
+      // 2) 外部（CYBER Signage等）なら JSONP
+      const execUrl = WEBAPP_EXEC_URL;
+      if (!execUrl) {
+        showDataError("WEBAPP_EXEC_URL が未設定です。/exec URL を設定してください。");
+        return;
+      }
+      const dataUrl = execUrl + (execUrl.includes("?") ? "&" : "?") + "mode=data";
+
+      try{
+        const cbName = "cb_" + Math.random().toString(36).slice(2);
+        const payload = await loadJsonp(dataUrl, cbName);
+
+        const generatedAt = payload?.generatedAt || payload?.weather?.updatedAt || null;
+        document.getElementById("updatedLine").textContent =
+          "更新: " + (generatedAt ? new Date(generatedAt).toLocaleString("ja-JP") : "--");
+
+        renderAlerts(payload?.alerts || []);
+        if (payload?.weather) renderWeather(payload.weather);
+        else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
+
+        renderNews(payload?.news || {});
+
+      }catch(err){
+        showDataError("データ取得エラー: " + (err?.message || String(err)), dataUrl);
+      }
+    }
+
+    tickClock();
+    setInterval(tickClock, 1000 * 5);
+    refresh();
+    setInterval(refresh, 1000 * 60 * 2);
   </script>
 </body>
 </html>
+
+
