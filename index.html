@@ -6,31 +6,34 @@
   <title>サイネージ：天気・ニュース</title>
   <style>
     :root{
-      --bg1:#083645;
-      --bg2:#0a3f4f;
-      --card:#ffffff;
-      --muted:#6b7280;
-      --line:#e5e7eb;
-      --shadow: 0 8px 24px rgba(0,0,0,.18);
-      --radius: 18px;
+  --bg1:#083645;
+  --bg2:#0a3f4f;
+  --card:#ffffff;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --shadow: 0 8px 24px rgba(0,0,0,.18);
+  --radius: 18px;
 
-      --hTitle: 38px;
-      --hClock: 92px;
+  --hTitle: 38px;
+  --hClock: 92px;
 
-      --wDayLabel: 36px;
-      --wDate: 30px;
-      --wMain: 34px;
-      --wSub: 28px;
-      --wSmall: 22px;
+  --wDayLabel: 36px;
+  --wDate: 30px;
+  --wMain: 34px;
+  --wSub: 28px;
+  --wSmall: 22px;
 
-      --nTitle: 42px;
---nRowTitle: 36px;
---nRowMeta: 26px;
+  --nTitle: 42px;
+  --nRowTitle: 36px;
+  --nRowMeta: 26px;
 
-      /* アイコンは“枠”を固定（種類で小さく見えないように） */
-      --iconToday: 300px;
-      --iconWeek: 80px;
-    }
+  --iconToday: 300px;
+  --iconWeek: 80px;
+
+  /* ===== signage fixed size ===== */
+  --W: 2160px;
+  --H: 785px;
+}
 
     *{ box-sizing:border-box; }
     body{
@@ -41,13 +44,13 @@
     }
 
     .wrap{
-      width:100vw;
-      height:100vh;
-      padding:18px 22px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
+  width: var(--W);
+  height: var(--H);
+  padding:18px 22px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
 
     .topbar{
       display:flex;
