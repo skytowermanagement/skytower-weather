@@ -674,7 +674,12 @@ const maxText = normDeg(day?.tempMax);
 
       const today = weather.today || {};
       const tomorrow = weather.tomorrow || {};
-      const week = Array.isArray(weather.week) ? weather.week.slice(0,5) : []; // 明後日〜5日（Code.gs側）
+      let week = Array.isArray(weather.week) ? weather.week : [];
+// 週の先頭が明日と同じなら1個ずらす（明後日から表示）
+if (week[0]?.dateKey && weather?.tomorrow?.dateKey && week[0].dateKey === weather.tomorrow.dateKey) {
+  week = week.slice(1);
+}
+week = week.slice(0,5);
 
       body.innerHTML = `
         <div class="wxTodayTomorrow">
@@ -809,7 +814,7 @@ const maxText = normDeg(day?.tempMax);
 
             renderAlerts(payload?.alerts || []);
 
-// ★ ここ追加：date → dateKey に寄せる（HTML側で吸収）
+// ★ date → dateKey 変換（外部JSONPでも必要）
 const w = payload?.weather;
 if (w?.today?.date && !w.today.dateKey) w.today.dateKey = w.today.date;
 if (w?.tomorrow?.date && !w.tomorrow.dateKey) w.tomorrow.dateKey = w.tomorrow.date;
@@ -818,7 +823,7 @@ if (Array.isArray(w?.week)) w.week.forEach(d => { if (d?.date && !d.dateKey) d.d
 if (w) renderWeather(w);
 else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
 
-// ★ ここ置き換え：news じゃなく items を使う
+// ★ news じゃなく items（あなたのGASは items で返してる）
 renderNews({ national: payload?.items || [], local: [] });
             
           })
