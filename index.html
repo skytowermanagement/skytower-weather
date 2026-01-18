@@ -412,6 +412,22 @@
       font-weight: 900;
       white-space:pre-wrap;
     }
+
+    html, body{
+  width:100%;
+  height:100%;
+  overflow:hidden; /* はみ出しを見せない */
+}
+
+/* wrapをスケールさせる */
+.wrap{
+  position:absolute;
+  left:0;
+  top:0;
+  transform-origin: top left;
+  transform: scale(var(--S, 1));
+}
+    
   </style>
 </head>
 
@@ -869,6 +885,38 @@ renderNews({ national: payload?.items || [], local: [] });
       }
     }
 
+    function fitToViewport(){
+  const rs = getComputedStyle(document.documentElement);
+  const W = parseFloat(rs.getPropertyValue("--W")) || 2160;
+  const H = parseFloat(rs.getPropertyValue("--H")) || 785;
+
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  const s = Math.min(vw / W, vh / H);
+  document.documentElement.style.setProperty("--S", s);
+
+  // 中央寄せ（不要ならこの3行は消してOK）
+  const x = (vw - W * s) / 2;
+  const y = (vh - H * s) / 2;
+  const wrap = document.querySelector(".wrap");
+  wrap.style.left = `${x}px`;
+  wrap.style.top  = `${y}px`;
+
+  // デバッグ表示（あとで消してOK）
+  let dbg = document.getElementById("dbgSize");
+  if(!dbg){
+    dbg = document.createElement("div");
+    dbg.id = "dbgSize";
+    dbg.style.cssText = "position:fixed;right:12px;bottom:10px;color:#fff;font-weight:900;font-size:18px;opacity:.75;z-index:9999";
+    document.body.appendChild(dbg);
+  }
+  dbg.textContent = `${vw}×${vh}  scale:${s.toFixed(3)}`;
+}
+
+window.addEventListener("resize", fitToViewport);
+fitToViewport();
+    
     tickClock();
     setInterval(tickClock, 1000 * 5);
     refresh();
