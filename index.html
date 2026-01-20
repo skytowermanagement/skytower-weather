@@ -826,7 +826,7 @@ if (w) renderWeather(w);
 else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
 
 const news = payload?.news || { national: [], local: [] };
-renderNews({ national: news.national || [], local: news.local || [] });
+renderNews(payload?.news || { national: [], local: [] });
 requestAnimationFrame(fitToViewport);
             
           })
@@ -865,7 +865,7 @@ if (w) renderWeather(w);
 else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
 
 // ★ news じゃなく items（あなたのGASは items で返してる）
-renderNews({ national: payload?.items || [], local: [] });
+renderNews(payload?.news || { national: [], local: [] });
 
       }catch(err){
         showDataError("データ取得エラー: " + (err?.message || String(err)), dataUrl);
