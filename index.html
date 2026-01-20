@@ -825,9 +825,8 @@ if (Array.isArray(w?.week)) w.week.forEach(d => { if (d?.date && !d.dateKey) d.d
 if (w) renderWeather(w);
 else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
 
-renderNews({ national: payload?.items || [], local: [] });
-            
-// ★追加：DOM反映後にfit
+const news = payload?.news || { national: [], local: [] };
+renderNews({ national: news.national || [], local: news.local || [] });
 requestAnimationFrame(fitToViewport);
             
           })
