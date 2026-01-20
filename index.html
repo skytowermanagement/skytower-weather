@@ -826,7 +826,7 @@ if (w) renderWeather(w);
 else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
 
 renderNews({ national: payload?.items || [], local: [] });
-
+            
 // ★追加：DOM反映後にfit
 requestAnimationFrame(fitToViewport);
             
