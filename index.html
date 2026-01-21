@@ -1,8 +1,11 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">
 <style>
+  html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; }
+  body { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
   :root{
     --bg1:#083645;
     --bg2:#0a3f4f;
@@ -44,19 +47,22 @@
     color:#0f172a;
   }
 
+  #stage{
+  position: fixed;
+  left: 0; top: 0;
+  width: var(--W);
+  height: var(--H);
+  transform-origin: 0 0;
+  overflow: hidden;
+}
+  
   .wrap{
   width: var(--W);
-  /* height: var(--H); ←消す */
+  height: var(--H);
   padding:18px 22px;
   display:flex;
   flex-direction:column;
   gap:10px;
-
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform: translate(-50%, -50%) scale(var(--S, 1));
-  transform-origin:center center;
 }
 
     .topbar{
@@ -417,6 +423,7 @@
 </head>
 
 <body>
+  <div id="stage">
   <div class="wrap">
     <div class="topbar">
       <div class="leftInfo">
@@ -452,6 +459,7 @@
       </div>
     </div>
   </div>
+    </div>
 
   <script>
     // ★あなたの /exec(B)（固定でOK）
@@ -806,37 +814,32 @@ week = week.slice(0,5);
     }
 
     async function refresh(){
-      document.documentElement.style.setProperty("--S", "1");
-      // 1) GAS内プレビューなら google.script.run が最優先
-      if (window.google?.script?.run?.withSuccessHandler) {
-        google.script.run
-          .withSuccessHandler((payload)=>{
-            const generatedAt = payload?.generatedAt || payload?.weather?.updatedAt || null;
-            document.getElementById("updatedLine").textContent =
-              "更新: " + (generatedAt ? new Date(generatedAt).toLocaleString("ja-JP") : "--");
+  // 1) GAS内プレビューなら google.script.run が最優先
+  if (window.google?.script?.run?.withSuccessHandler) {
+    google.script.run
+      .withSuccessHandler((payload)=>{
+        const generatedAt = payload?.generatedAt || payload?.weather?.updatedAt || null;
+        document.getElementById("updatedLine").textContent =
+          "更新: " + (generatedAt ? new Date(generatedAt).toLocaleString("ja-JP") : "--");
 
-            renderAlerts(payload?.alerts || []);
+        renderAlerts(payload?.alerts || []);
 
-// ★ date → dateKey 変換（外部JSONPでも必要）
-const w = payload?.weather;
-if (w?.today?.date && !w.today.dateKey) w.today.dateKey = w.today.date;
-if (w?.tomorrow?.date && !w.tomorrow.dateKey) w.tomorrow.dateKey = w.tomorrow.date;
-if (Array.isArray(w?.week)) w.week.forEach(d => { if (d?.date && !d.dateKey) d.dateKey = d.date; });
+        const w = payload?.weather;
+        if (w?.today?.date && !w.today.dateKey) w.today.dateKey = w.today.date;
+        if (w?.tomorrow?.date && !w.tomorrow.dateKey) w.tomorrow.dateKey = w.tomorrow.date;
+        if (Array.isArray(w?.week)) w.week.forEach(d => { if (d?.date && !d.dateKey) d.dateKey = d.date; });
 
-if (w) renderWeather(w);
-else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
+        if (w) renderWeather(w);
+        else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
 
-const news = payload?.news || { national: [], local: [] };
-renderNews(payload?.news || { national: [], local: [] });
-requestAnimationFrame(fitToViewport);
-            
-          })
-          .withFailureHandler((err)=>{
-            showDataError("データ取得エラー: " + (err?.message || String(err)));
-          })
-          .getData();
-        return;
-      }
+        renderNews(payload?.news || { national: [], local: [] });
+      })
+      .withFailureHandler((err)=>{
+        showDataError("データ取得エラー: " + (err?.message || String(err)));
+      })
+      .getData();
+    return;
+  }
 
       // 2) 外部（CYBER Signage等）なら JSONP
       const execUrl = WEBAPP_EXEC_URL;
@@ -865,7 +868,7 @@ if (Array.isArray(w?.week)) w.week.forEach(d => { if (d?.date && !d.dateKey) d.d
 if (w) renderWeather(w);
 else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
 
-// ★ news じゃなく items（あなたのGASは items で返してる）
+// ★ news を描画
 renderNews(payload?.news || { national: [], local: [] });
 
       }catch(err){
@@ -879,28 +882,25 @@ renderNews(payload?.news || { national: [], local: [] });
     refresh();
     setInterval(refresh, 1000 * 60 * 2);
 
-    function fitToViewport(){
-  const baseW = 2160;
-  const wrap = document.querySelector(".wrap");
-  if(!wrap) return;
+  </script>
 
-  // いったん等倍に戻して “実高さ” を正しく測る
-  document.documentElement.style.setProperty("--S", "1");
+  <script>
+(function(){
+  const DESIGN_W = 2160;
+  const DESIGN_H = 785;
+  const stage = document.getElementById("stage");
 
-  // 次のフレームで計測（DOM反映待ち）
-  requestAnimationFrame(() => {
+  function fit(){
     const vw = window.innerWidth;
     const vh = window.innerHeight;
+    const scale = Math.min(vw / DESIGN_W, vh / DESIGN_H);
+    stage.style.transform = `scale(${scale})`;
+  }
 
-    const contentH = wrap.scrollHeight; // 中身の実高さ
-    const s = Math.min(vw / baseW, vh / contentH);
-
-    document.documentElement.style.setProperty("--S", s.toFixed(6));
-  });
-}
-
-window.addEventListener("resize", fitToViewport);
-fitToViewport();
-  </script>
+  window.addEventListener("resize", fit);
+  fit();
+})();
+</script>
+  
 </body>
 </html>
