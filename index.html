@@ -48,424 +48,425 @@
   }
 
   #stage{
-  position: fixed;
-  left: 0; top: 0;
-  width: var(--W);
-  height: var(--H);
-  transform-origin: 0 0;
-  overflow: hidden;
-}
-  
+    position: fixed;
+    left: 0; top: 0;
+    width: var(--W);
+    height: var(--H);
+    transform-origin: 0 0;
+    overflow: hidden;
+  }
+
+  /* ▼▼ “古いデータ” 表示（TTL超え） ▼▼ */
+  body.is-stale .card{
+    opacity: .58;            /* ここが「薄くする」 */
+    filter: saturate(.92);
+  }
+  body.is-stale .badgeInfo{
+    opacity: .95;
+  }
+  body.is-stale .dot{
+    background:#f59e0b;      /* 緑→橙 */
+    box-shadow:0 0 0 6px rgba(245,158,11,.20);
+  }
+  #staleBadge{
+    display:none;
+    margin-top: 6px;
+    background: rgba(245,158,11,.22);
+    border: 1px solid rgba(245,158,11,.38);
+    color: rgba(255,255,255,.96);
+    border-radius: 14px;
+    padding: 10px 12px;
+    font-weight: 1000;
+    font-size: 22px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width: 920px;
+  }
+  body.is-stale #staleBadge{ display:block; }
+  /* ▲▲ TTL表示ここまで ▲▲ */
+
+  /* ====== layout（下切れ対策：縦方向を少しだけ節約） ====== */
   .wrap{
-  width: var(--W);
-  height: var(--H);
-  padding:18px 22px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
+    width: var(--W);
+    height: var(--H);
+    padding:14px 20px;     /* 18/22 → 14/20 */
+    display:flex;
+    flex-direction:column;
+    gap:8px;               /* 10 → 8 */
+  }
 
-    .topbar{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:16px;
-    }
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+  }
 
-    .leftInfo{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      min-width:0;
-    }
+  .leftInfo{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    min-width:0;
+  }
 
-    .badgeInfo{
-      display:flex; align-items:center; gap:10px;
-      color: rgba(255,255,255,.95);
-      font-weight: 900;
-      letter-spacing:.5px;
-    }
-    .dot{ width:10px;height:10px;border-radius:50%; background:#22c55e; box-shadow:0 0 0 6px rgba(34,197,94,.18); }
-    #updatedLine{
-      color: rgba(255,255,255,.9);
-      font-weight: 800;
-      font-size: 20px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
+  .badgeInfo{
+    display:flex; align-items:center; gap:10px;
+    color: rgba(255,255,255,.95);
+    font-weight: 900;
+    letter-spacing:.5px;
+  }
+  .dot{ width:10px;height:10px;border-radius:50%; background:#22c55e; box-shadow:0 0 0 6px rgba(34,197,94,.18); }
+  #updatedLine{
+    color: rgba(255,255,255,.9);
+    font-weight: 800;
+    font-size: 20px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
 
-    .alertBar{
-      display:none;
-      background: rgba(255, 80, 80, .18);
-      border: 1px solid rgba(255, 80, 80, .35);
-      color: rgba(255,255,255,.95);
-      border-radius: 14px;
-      padding: 10px 12px;
-      font-weight: 900;
-      font-size: 22px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width: 920px;
-    }
+  .alertBar{
+    display:none;
+    background: rgba(255, 80, 80, .18);
+    border: 1px solid rgba(255, 80, 80, .35);
+    color: rgba(255,255,255,.95);
+    border-radius: 14px;
+    padding: 10px 12px;
+    font-weight: 900;
+    font-size: 22px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width: 920px;
+  }
 
-/* 防災：カード内表示（白背景に合わせる） */
-.alertInCard{
-  max-width: 100%;
-  margin: 6px 0 8px;
-  background: #fff1f2;          /* うす赤 */
-  border: 1px solid #fecdd3;
-  color: #9f1239;               /* 濃赤文字 */
-  font-size: 20px;
-}
+  /* 防災：カード内表示（白背景に合わせる） */
+  .alertInCard{
+    max-width: 100%;
+    margin: 6px 0 8px;
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    color: #9f1239;
+    font-size: 20px;
+  }
 
-    .clockBox{
-      text-align:right;
-      color:#fff;
-      font-weight:900;
-      line-height:1;
-      flex:0 0 auto;
-    }
-    #clockTime{ font-size: var(--hClock); }
+  .clockBox{
+    text-align:right;
+    color:#fff;
+    font-weight:900;
+    line-height:1;
+    flex:0 0 auto;
+  }
+  #clockTime{ font-size: var(--hClock); }
 
-    .grid{
-      flex:1;
-      display:grid;
-      grid-template-columns: 0.95fr 1.05fr; /* ニュースを少し広く */
-      gap:16px;
-      min-height:0;
-    }
+  .grid{
+    flex:1;
+    display:grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    gap:14px;              /* 16 → 14 */
+    min-height:0;
+  }
 
-    .card{
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 16px 18px;
-      overflow:hidden;
-      display:flex;
-      flex-direction:column;
-      min-height:0;
-    }
+  .card{
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 14px 16px;    /* 16/18 → 14/16 */
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+  }
 
-    .cardHeader{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom: 8px;
-      gap:10px;
-    }
-    .cardTitle{
-      font-size: var(--hTitle);
-      font-weight: 900;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .cardMeta{
-      font-size: 20px;
-      color: var(--muted);
-      font-weight: 800;
-      white-space:nowrap;
-    }
-    .divider{ height:1px; background: var(--line); margin: 8px 0 10px; }
+  .cardHeader{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom: 6px;    /* 8 → 6 */
+    gap:10px;
+  }
+  .cardTitle{
+    font-size: var(--hTitle);
+    font-weight: 900;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .cardMeta{
+    font-size: 20px;
+    color: var(--muted);
+    font-weight: 800;
+    white-space:nowrap;
+  }
+  .divider{ height:1px; background: var(--line); margin: 6px 0 8px; } /* 8/10 → 6/8 */
 
-    /* ===== Weather ===== */
-    .wxBody{ display:flex; flex-direction:column; gap:10px; min-height:0; }
+  /* ===== Weather ===== */
+  .wxBody{ display:flex; flex-direction:column; gap:8px; min-height:0; } /* 10 → 8 */
 
-    .wxTempRow{
-  display:flex;
-  gap:10px;
-  align-items:baseline;
-}
+  .wxTempRow{
+    display:flex;
+    gap:10px;
+    align-items:baseline;
+  }
+  .wxTempRow > .metricLine{ flex:1; margin:0; }
 
-.wxTempRow > .metricLine{
-  flex:1;
-  margin:0;
-}
+  .tMax{ color:#dc2626; font-weight:1000; }
+  .tMin{ color:#2563eb; font-weight:1000; }
 
+  .wxMetrics{
+    font-size: 30px;
+    font-weight: 900;
+    display:flex;
+    flex-direction:column;
+    gap:3px;               /* 4 → 3 */
+    color:#111827;
+  }
+  .wxMetrics span{ white-space:nowrap; }
+  .wxMetrics .metricLine{ white-space:nowrap; }
 
-    /* 最高=赤 / 最低=青 */
-.tMax{ color:#dc2626; font-weight:1000; }
-.tMin{ color:#2563eb; font-weight:1000; }
+  .wxWeekTemps{ font-size: 24px; font-weight: 900; }
 
-/* 今日明日のメトリクス */
-.wxMetrics{
-  font-size: 30px;
-  font-weight: 900;
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-  color:#111827;
-}
-.wxMetrics span{ white-space:nowrap; }
+  .wxTodayTomorrow{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
 
-.wxMetrics .metricLine{ white-space:nowrap; }
+  .wxBox{
+    border:1px solid var(--line);
+    border-radius: 14px;
+    padding: 10px 10px 9px;  /* 下を1px詰め */
+    min-height: 238px;       /* 245 → 238（下切れ対策） */
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
 
-/* 週間の気温 */
-.wxWeekTemps{ font-size: 24px; font-weight: 900; }
+  .wxTop{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-weight: 900;
+    gap:10px;
+  }
+  .wxLabel{ font-size: var(--wDayLabel); }
+  .wxDate{ font-size: var(--wDate); color:#111827; opacity:.95; }
 
-    .wxTodayTomorrow{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
+  .wxMid{
+    display:grid;
+    grid-template-columns: var(--iconToday) 1fr;
+    gap: 12px;
+    align-items:stretch;
+    flex:1;
+    min-height:0;
+  }
+  .wxIconBox{
+    width: var(--iconToday);
+    height: var(--iconToday);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .wxIcon{ width: 100%; height: 100%; }
 
-    .wxBox{
-      border:1px solid var(--line);
-      border-radius: 14px;
-      padding: 10px 10px 10px;
-      min-height: 245px;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
+  .wxRight{
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    min-width:0;
+  }
 
-    .wxTop{
-      display:flex;
-      justify-content:space-between;
-      align-items:baseline;
-      font-weight: 900;
-      gap:10px;
-    }
-    .wxLabel{ font-size: var(--wDayLabel); }
-    .wxDate{ font-size: var(--wDate); color:#111827; opacity:.95; }
+  .wxText .wxMainWord{
+    font-size: 40px;
+    font-weight: 1000;
+    display:block;
+    margin:0 0 4px 0;
+  }
+  .wxText .wxTail{
+    font-size: 28px;
+    font-weight: 900;
+    opacity: .95;
+    display:block;
+    line-height: 1.15;     /* 1.18 → 1.15（下切れ対策） */
+  }
+  .wxText{
+    font-weight: 900;
+    line-height: 1.10;     /* 1.12 → 1.10 */
+    white-space: normal;
+    overflow: visible;
+    word-break: break-word;
+  }
 
-    /* アイコンを大きく、右の空きに情報を寄せる */
-    .wxMid{
-      display:grid;
-      grid-template-columns: var(--iconToday) 1fr;
-      gap: 12px;
-      align-items:stretch;
-      flex:1;
-      min-height:0;
-    }
-    .wxIconBox{
-      width: var(--iconToday);
-      height: var(--iconToday);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .wxIcon{
-      width: 100%;
-      height: 100%;
-    }
-    .wxRight{
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      min-width:0;
-    }
+  .wxWeekText{
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1.10;     /* 1.12 → 1.10 */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    white-space: normal;
+  }
+  .wxWeekText .wxMainWord{ font-size: 24px; font-weight: 1000; margin-right: 6px; }
+  .wxWeekText .wxTail{ font-size: 20px; font-weight: 900; opacity: .95; }
 
-    /* 天気テキスト：先頭ワードを大きく */
+  .wxText.is-long  .wxTail{ font-size: 24px; }
+  .wxText.is-xlong .wxTail{ font-size: 21px; }
 
-.wxText .wxMainWord{
-  font-size: 40px;
-  font-weight: 1000;
-  display: block;     /* ←主天気を必ず1行目に */
-  margin-right: 0;
-}
+  .wxWeek{
+    border-top:1px dashed var(--line);
+    padding-top: 8px;      /* 10 → 8 */
+  }
 
-.wxText .wxTail{
-  font-size: 28px;
-  font-weight: 900;
-  opacity: .95;
-  display: block;     /* ←補足を必ず2行目に */
-}
+  .wxWeekRow{
+    display:grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap:8px;               /* 10 → 8 */
+  }
+  .wxWeekItem{
+    border:1px solid var(--line);
+    border-radius: 14px;
+    padding: 9px;          /* 10 → 9 */
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    min-width:0;
+  }
+  .wxWeekHead{
+    font-weight: 900;
+    font-size: 22px;
+    color:#111827;
+    white-space:nowrap;
+  }
+  .wxWeekIconBox{
+    width: var(--iconWeek);
+    height: var(--iconWeek);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .wxWeekIcon{ width:100%; height:100%; }
 
-.wxText{
-  font-weight: 900;
-  line-height: 1.12;
-  white-space: normal;
-  overflow: visible;     /* ← hidden をやめる */
-  word-break: break-word;
-}
+  /* ===== News ===== */
+  .newsBody{
+    display:flex;
+    flex-direction:column;
+    gap:8px;               /* 10 → 8 */
+    min-height:0;
+  }
+  .newsList{
+    list-style:none;
+    padding:0;
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;               /* 10 → 8 */
+    overflow:hidden;
+  }
+  .newsItem{
+    border:1px solid var(--line);
+    border-radius: 14px;
+    padding: 10px 12px;    /* 12 → 10 */
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    min-width:0;
+  }
+  .newsTitle{
+    font-size: var(--nRowTitle);
+    font-weight: 900;
+    line-height:1.12;      /* 1.15 → 1.12（下切れ対策） */
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width: 100%;
+  }
+  .newsMeta{
+    font-size: var(--nRowMeta);
+    color: var(--muted);
+    font-weight: 800;
+    display:flex;
+    gap:10px;
+    flex-wrap:nowrap;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    min-width:0;
+  }
 
-.wxText .wxMainWord{
-  display:block;
-  margin:0 0 4px 0;
-}
+  .chip{
+    display:inline-flex;
+    align-items:center;
+    padding:2px 10px;
+    border-radius: 999px;
+    font-size: 18px;
+    font-weight: 900;
+    flex:0 0 auto;
+  }
+  .chipNational{ background: rgba(37,99,235,.12); color:#1d4ed8; border:1px solid rgba(37,99,235,.25); }
+  .chipLocal{ background: rgba(16,185,129,.12); color:#047857; border:1px solid rgba(16,185,129,.25); }
 
-.wxText .wxTail{
-  display:block;
-  line-height: 1.18;
-}
+  a{ color:inherit; text-decoration:none; }
 
-/* 週間テキスト：2行クランプを維持 */
-.wxWeekText{
-  font-size: 22px;
-  font-weight: 900;
-  line-height: 1.12;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  white-space: normal;
-}
-
-.wxWeekText .wxMainWord{ font-size: 24px; font-weight: 1000; margin-right: 6px; }
-.wxWeekText .wxTail{ font-size: 20px; font-weight: 900; opacity: .95; }
-
-    /* 天気テキスト：長いときだけ小さくする */
-.wxText.is-long  .wxTail{ font-size: 24px; }
-.wxText.is-xlong .wxTail{ font-size: 21px; }
-
-    .wxWeek{
-      border-top:1px dashed var(--line);
-      padding-top: 10px;
-    }
-
-    /* 週間：明後日〜5日（見出しなし） */
-    .wxWeekRow{
-      display:grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap:10px;
-    }
-    .wxWeekItem{
-      border:1px solid var(--line);
-      border-radius: 14px;
-      padding: 10px;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      min-width:0;
-    }
-    .wxWeekHead{
-      font-weight: 900;
-      font-size: 22px;
-      color:#111827;
-      white-space:nowrap;
-    }
-    .wxWeekIconBox{
-      width: var(--iconWeek);
-      height: var(--iconWeek);
-      display:flex; align-items:center; justify-content:center;
-    }
-    .wxWeekIcon{
-      width:100%; height:100%;
-    }
-    
-  
-
-    /* ===== News ===== */
-    .newsBody{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      min-height:0;
-    }
-    .newsList{
-      list-style:none;
-      padding:0;
-      margin:0;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      overflow:hidden;
-    }
-    .newsItem{
-      border:1px solid var(--line);
-      border-radius: 14px;
-      padding: 12px 12px;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      min-width:0;
-    }
-    .newsTitle{
-      font-size: var(--nRowTitle);
-      font-weight: 900;
-      line-height:1.15;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis; /* 右切れ防止 */
-      max-width: 100%;
-    }
-    .newsMeta{
-      font-size: var(--nRowMeta);
-      color: var(--muted);
-      font-weight: 800;
-      display:flex;
-      gap:10px;
-      flex-wrap:nowrap;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      min-width:0;
-    }
-
-    .chip{
-      display:inline-flex;
-      align-items:center;
-      padding:2px 10px;
-      border-radius: 999px;
-      font-size: 18px;
-      font-weight: 900;
-      flex:0 0 auto;
-    }
-    .chipNational{ background: rgba(37,99,235,.12); color:#1d4ed8; border:1px solid rgba(37,99,235,.25); }
-    .chipLocal{ background: rgba(16,185,129,.12); color:#047857; border:1px solid rgba(16,185,129,.25); }
-
-    a{ color:inherit; text-decoration:none; }
-
-    .error{
-      background:#fee2e2;
-      color:#7f1d1d;
-      border:1px solid #fecaca;
-      padding:10px 12px;
-      border-radius: 12px;
-      font-weight: 900;
-      white-space:pre-wrap;
-    }
-    
-  </style>
+  .error{
+    background:#fee2e2;
+    color:#7f1d1d;
+    border:1px solid #fecaca;
+    padding:10px 12px;
+    border-radius: 12px;
+    font-weight: 900;
+    white-space:pre-wrap;
+  }
+</style>
 </head>
 
 <body>
   <div id="stage">
-  <div class="wrap">
-    <div class="topbar">
-      <div class="leftInfo">
-        <div class="badgeInfo"><span class="dot"></span>Information</div>
-        <div id="updatedLine">更新: --</div>
-        <div id="alertBar" class="alertBar"></div>
-      </div>
-
-      <div class="clockBox">
-        <div id="clockTime">--:--</div>
-      </div>
-    </div>
-
-    <div class="grid">
-      <!-- Weather -->
-      <div class="card">
-  <div class="cardHeader">
-    <div class="cardTitle">天気（江東区 / 東京都地方）</div>
-    <div class="cardMeta">気象庁</div>
-  </div>
-
-  <div id="alertBarInCard" class="alertBar alertInCard"></div>
-
-  <div id="weatherBody" class="wxBody"></div>
-</div>
-
-      <!-- News -->
-      <div class="card">
-        <div class="cardHeader">
-          <div class="cardTitle">ニュース</div>
+    <div class="wrap">
+      <div class="topbar">
+        <div class="leftInfo">
+          <div class="badgeInfo"><span class="dot"></span>Information</div>
+          <div id="updatedLine">更新: --</div>
+          <div id="staleBadge">前回データ表示中（更新できていません）</div>
+          <div id="alertBar" class="alertBar"></div>
         </div>
-        <div id="newsBody" class="newsBody"></div>
+
+        <div class="clockBox">
+          <div id="clockTime">--:--</div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <!-- Weather -->
+        <div class="card">
+          <div class="cardHeader">
+            <div class="cardTitle">天気（江東区 / 東京都地方）</div>
+            <div class="cardMeta">気象庁</div>
+          </div>
+
+          <div id="alertBarInCard" class="alertBar alertInCard"></div>
+          <div id="weatherBody" class="wxBody"></div>
+        </div>
+
+        <!-- News -->
+        <div class="card">
+          <div class="cardHeader">
+            <div class="cardTitle">ニュース</div>
+          </div>
+          <div id="newsBody" class="newsBody"></div>
+        </div>
       </div>
     </div>
   </div>
-    </div>
 
   <script>
     // ★あなたの /exec(B)（固定でOK）
     const WEBAPP_EXEC_URL = "https://script.google.com/macros/s/AKfycbyAlq4IuSKCdpdgV6B6nvRt8-hT5QpNrq-B7ITJvofheIqRCDHf3soudA0fV2CBXLiM/exec";
 
-    
+    // ===== TTL / Cache（ここが今回の肝）=====
+    // 例：6時間を超えたら “薄くする” + バッジ表示
+    const TTL_MS = 6 * 60 * 60 * 1000; // 6h（必要なら 3h にしてもOK）
+    const CACHE_KEY = "SIGNAGE_CACHE_V1";
+
     // ---------- util ----------
     const pad2 = (n)=> String(n).padStart(2,"0");
     const escapeHtml = (s)=> String(s ?? "")
@@ -473,12 +474,12 @@
 
     const DOW = ["日","月","火","水","木","金","土"];
 
-    function fmtMDNoZero(dateKey){ // "yyyy-mm-dd" -> "m/d"
+    function fmtMDNoZero(dateKey){
       if(!dateKey) return "--/--";
       const [y,m,d] = dateKey.split("-").map(Number);
       return `${m}/${d}`;
     }
-    function fmtMDWithDow(dateKey){ // "1/18(日)"
+    function fmtMDWithDow(dateKey){
       if(!dateKey) return "--/--";
       const dt = new Date(dateKey + "T00:00:00+09:00");
       const md = fmtMDNoZero(dateKey);
@@ -490,8 +491,40 @@
       return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
     }
 
-    // ---------- Weather icon (simple) ----------
+    function setStaleUi(isStale, msg){
+      document.body.classList.toggle("is-stale", !!isStale);
+      const badge = document.getElementById("staleBadge");
+      if(isStale){
+        badge.textContent = msg || "前回データ表示中（更新できていません）";
+      }
+    }
 
+    function saveCache(payload){
+      try{
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          savedAt: Date.now(),
+          payload
+        }));
+      }catch(_){}
+    }
+
+    function loadCache(){
+      try{
+        const t = localStorage.getItem(CACHE_KEY);
+        if(!t) return null;
+        return JSON.parse(t);
+      }catch(_){
+        return null;
+      }
+    }
+
+    function getPayloadTimeMs(payload){
+      const g = payload?.generatedAt || payload?.weather?.updatedAt || payload?.news?.updatedAt || null;
+      const ms = g ? Date.parse(g) : NaN;
+      return Number.isFinite(ms) ? ms : 0;
+    }
+
+    // ---------- Weather icon ----------
     function wxKindFromCode(code){
       if(code == null) return "unknown";
       const n = Number(code);
@@ -502,41 +535,41 @@
       if(n >= 400 && n < 500) return "snow";
       return "unknown";
     }
+    function wxLabelFromKind(kind){
+      if(kind==="sun") return "晴れ";
+      if(kind==="cloud") return "くもり";
+      if(kind==="rain") return "雨";
+      if(kind==="snow") return "雪";
+      return "—";
+    }
 
-function wxLabelFromKind(kind){
-  if(kind==="sun") return "晴れ";
-  if(kind==="cloud") return "くもり";
-  if(kind==="rain") return "雨";
-  if(kind==="snow") return "雪";
-  return "—";
-}
+    function splitWxText(raw, kind){
+      const t = (raw || "").replace(/\s+/g," ").trim();
+      if(!t) return { head: wxLabelFromKind(kind), tail: "" };
 
-function wxTextHtml(raw, kind, clsMain="wxMainWord", clsTail="wxTail"){
-  const sp = splitWxText(raw, kind);
+      const m = t.match(/^(晴れ|くもり|曇り|雨|雪)(.*)$/);
+      if(m){
+        const head = (m[1] === "曇り") ? "くもり" : m[1];
+        const tail = (m[2] || "").trim();
+        return { head, tail };
+      }
+      const parts = t.split(" ");
+      return { head: parts[0], tail: parts.slice(1).join(" ") };
+    }
 
-  const head = sp.head || "—";
-  const tail0 = (sp.tail || "").trim();
+    function wxTextHtml(raw, kind, clsMain="wxMainWord", clsTail="wxTail"){
+      const sp = splitWxText(raw, kind);
+      const head = sp.head || "—";
+      const tail0 = (sp.tail || "").trim();
+      const headHtml = `<span class="${clsMain}">${escapeHtml(head)}</span>`;
+      if(!tail0) return headHtml;
 
-  const headHtml = `<span class="${clsMain}">${escapeHtml(head)}</span>`;
-  if(!tail0) return headHtml;
+      const BREAK_RE = /(昼過ぎから|夕方から|夜遅くから|明け方から|朝から|昼前から|夜から)/g;
+      const tailWithNL = tail0.replace(BREAK_RE, "\n$1");
+      const tailHtml = escapeHtml(tailWithNL).replace(/\n/g, "<br>");
 
-  // 改行したいワード（必要なら追加OK）
-  const BREAK_RE = /(昼過ぎから|夕方から|夜遅くから|明け方から|朝から|昼前から|夜から)/g;
-
-  // ここで改行マークを入れて → <br> に変換（切り捨てなし）
-  const tailWithNL = tail0.replace(BREAK_RE, "\n$1");
-  const tailHtml = escapeHtml(tailWithNL).replace(/\n/g, "<br>");
-
-  return `${headHtml}<span class="${clsTail}">${tailHtml}</span>`;
-}
-
-// 末尾に "…" を付けて切る（超シンプル）
-function clampText_(s, maxLen){
-  s = (s || "").trim();
-  if(!s) return "";
-  if(s.length <= maxLen) return s;
-  return s.slice(0, Math.max(0, maxLen - 1)) + "…";
-}
+      return `${headHtml}<span class="${clsTail}">${tailHtml}</span>`;
+    }
 
     function wxIconSvg(kind){
       if(kind === "sun"){
@@ -552,28 +585,28 @@ function clampText_(s, maxLen){
           </svg>`;
       }
       if(kind === "cloud"){
-  return `
-    <svg viewBox="-5 -5 150 120" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-      <path d="M35 70c-12 0-22-9-22-20s10-20 22-20c3 0 6 1 9 2C48 22 59 14 73 14c18 0 32 13 34 30 10 2 18 10 18 20 0 12-10 22-22 22H35z"
-        fill="#94a3b8"></path>
-    </svg>`;
-}
+        return `
+          <svg viewBox="-5 -5 150 120" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+            <path d="M35 70c-12 0-22-9-22-20s10-20 22-20c3 0 6 1 9 2C48 22 59 14 73 14c18 0 32 13 34 30 10 2 18 10 18 20 0 12-10 22-22 22H35z"
+              fill="#94a3b8"></path>
+          </svg>`;
+      }
       if(kind === "rain"){
-  return `
-    <svg viewBox="0 0 120 130" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-      <path d="M35 72c-12 0-22-9-22-20s10-20 22-20c3 0 6 1 9 2C48 24 59 16 73 16c18 0 32 13 34 30 10 2 18 10 18 20 0 12-10 22-22 22H35z"
-        fill="#94a3b8"></path>
-      ${[40,60,80].map(x=>`<line x1="${x}" y1="86" x2="${x-6}" y2="110" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"></line>`).join("")}
-    </svg>`;
-}
+        return `
+          <svg viewBox="0 0 120 130" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+            <path d="M35 72c-12 0-22-9-22-20s10-20 22-20c3 0 6 1 9 2C48 24 59 16 73 16c18 0 32 13 34 30 10 2 18 10 18 20 0 12-10 22-22 22H35z"
+              fill="#94a3b8"></path>
+            ${[40,60,80].map(x=>`<line x1="${x}" y1="86" x2="${x-6}" y2="110" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"></line>`).join("")}
+          </svg>`;
+      }
       if(kind === "snow"){
-  return `
-    <svg viewBox="0 0 120 130" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-      <path d="M35 72c-12 0-22-9-22-20s10-20 22-20c3 0 6 1 9 2C48 24 59 16 73 16c18 0 32 13 34 30 10 2 18 10 18 20 0 12-10 22-22 22H35z"
-        fill="#94a3b8"></path>
-      ${[44,66,88].map(x=>`<circle cx="${x}" cy="100" r="6" fill="#60a5fa"></circle>`).join("")}
-    </svg>`;
-}
+        return `
+          <svg viewBox="0 0 120 130" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+            <path d="M35 72c-12 0-22-9-22-20s10-20 22-20c3 0 6 1 9 2C48 24 59 16 73 16c18 0 32 13 34 30 10 2 18 10 18 20 0 12-10 22-22 22H35z"
+              fill="#94a3b8"></path>
+            ${[44,66,88].map(x=>`<circle cx="${x}" cy="100" r="6" fill="#60a5fa"></circle>`).join("")}
+          </svg>`;
+      }
       return `
         <svg viewBox="0 0 100 100" width="100%" height="100%">
           <circle cx="50" cy="50" r="40" fill="#e5e7eb"></circle>
@@ -581,99 +614,76 @@ function clampText_(s, maxLen){
         </svg>`;
     }
 
-const normDeg = (v) => {
-  if (v == null || v === "") return "—";
-  return String(v).replace(/°/g, "") + "°";
-};
+    const normDeg = (v) => {
+      if (v == null || v === "") return "—";
+      return String(v).replace(/°/g, "") + "°";
+    };
 
     function metricLine(label, val, suffix="", cls=""){
-  const v = (val == null || val === "") ? "—" : String(val);
-  return `<div class="metricLine ${cls}">${label} ${escapeHtml(v)}${suffix}</div>`;
-}
-
-// 例：「晴れ 夕方からくもり 所により…」→ head="晴れ", tail="夕方からくもり 所により…"
-function splitWxText(raw, kind){
-  const t = (raw || "").replace(/\s+/g," ").trim();
-  if(!t) return { head: wxLabelFromKind(kind), tail: "" };
-
-  const m = t.match(/^(晴れ|くもり|曇り|雨|雪)(.*)$/);
-  if(m){
-    const head = (m[1] === "曇り") ? "くもり" : m[1];
-    const tail = (m[2] || "").trim();
-    return { head, tail };
-  }
-
-  const parts = t.split(" ");
-  return { head: parts[0], tail: parts.slice(1).join(" ") };
-}
+      const v = (val == null || val === "") ? "—" : String(val);
+      return `<div class="metricLine ${cls}">${label} ${escapeHtml(v)}${suffix}</div>`;
+    }
 
     function renderWxBox(label, day){
-  const kind = wxKindFromCode(day?.weatherCode);
-  const rawText = (day?.weatherText || "").replace(/\s+/g," ").trim();
-  const title = rawText || wxLabelFromKind(kind);
+      const kind = wxKindFromCode(day?.weatherCode);
+      const rawText = (day?.weatherText || "").replace(/\s+/g," ").trim();
+      const title = rawText || wxLabelFromKind(kind);
 
-  
+      const minText = normDeg(day?.tempMin);
+      const maxText = normDeg(day?.tempMax);
+      const len = title.length;
+      const textClass =
+        (len >= 18) ? "wxText is-xlong" :
+        (len >= 13) ? "wxText is-long" :
+        "wxText";
 
-const minText = normDeg(day?.tempMin);
-const maxText = normDeg(day?.tempMax);
-  const len = title.length;
-  const textClass =
-    (len >= 18) ? "wxText is-xlong" :
-    (len >= 13) ? "wxText is-long" :
-    "wxText";
-
-  return `
-    <div class="wxBox">
-      <div class="wxTop">
-        <div class="wxLabel">${escapeHtml(label)}</div>
-        <div class="wxDate">${fmtMDWithDow(day?.dateKey)}</div>
-      </div>
-
-      <div class="wxMid">
-        <div class="wxIconBox">
-          <div class="wxIcon" title="${escapeHtml(title)}">${wxIconSvg(kind)}</div>
-        </div>
-
-        <div class="wxRight">
-          <div class="${textClass}" title="${escapeHtml(title)}">
-            ${wxTextHtml(rawText, kind, "wxMainWord","wxTail")}
+      return `
+        <div class="wxBox">
+          <div class="wxTop">
+            <div class="wxLabel">${escapeHtml(label)}</div>
+            <div class="wxDate">${fmtMDWithDow(day?.dateKey)}</div>
           </div>
 
-          <div class="wxMetrics">
-  ${metricLine("最高", maxText, "", "tMax")}
-  ${metricLine("最低", minText, "", "tMin")}
-  ${metricLine("降水", day?.pop, "%")}
-</div>
+          <div class="wxMid">
+            <div class="wxIconBox">
+              <div class="wxIcon" title="${escapeHtml(title)}">${wxIconSvg(kind)}</div>
+            </div>
+
+            <div class="wxRight">
+              <div class="${textClass}" title="${escapeHtml(title)}">
+                ${wxTextHtml(rawText, kind, "wxMainWord","wxTail")}
+              </div>
+
+              <div class="wxMetrics">
+                ${metricLine("最高", maxText, "", "tMax")}
+                ${metricLine("最低", minText, "", "tMin")}
+                ${metricLine("降水", day?.pop, "%")}
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  `;
-}
+      `;
+    }
 
     function renderWeekItem(day){
-  const kind = wxKindFromCode(day?.weatherCode);
-  const rawText = (day?.weatherText || "").replace(/\s+/g," ").trim();
-  const title = rawText || wxLabelFromKind(kind);
+      const kind = wxKindFromCode(day?.weatherCode);
+      const minText = normDeg(day?.tempMin);
+      const maxText = normDeg(day?.tempMax);
+      const head = fmtMDWithDow(day?.dateKey);
 
-  const minText = normDeg(day?.tempMin);
-const maxText = normDeg(day?.tempMax);
-
-  const head = fmtMDWithDow(day?.dateKey);
-
-  return `
-    <div class="wxWeekItem">
-      <div class="wxWeekHead">${head}</div>
-      <div class="wxWeekIconBox">
-        <div class="wxWeekIcon">${wxIconSvg(kind)}</div>
-      </div>
-
-      <div class="wxWeekTemps">
-  <span class="tMax">↑${maxText}</span>
-  <span class="tMin">↓${minText}</span>
-</div>
-    </div>
-  `;
-}
+      return `
+        <div class="wxWeekItem">
+          <div class="wxWeekHead">${head}</div>
+          <div class="wxWeekIconBox">
+            <div class="wxWeekIcon">${wxIconSvg(kind)}</div>
+          </div>
+          <div class="wxWeekTemps">
+            <span class="tMax">↑${maxText}</span>
+            <span class="tMin">↓${minText}</span>
+          </div>
+        </div>
+      `;
+    }
 
     function renderWeather(weather){
       const body = document.getElementById("weatherBody");
@@ -685,11 +695,11 @@ const maxText = normDeg(day?.tempMax);
       const today = weather.today || {};
       const tomorrow = weather.tomorrow || {};
       let week = Array.isArray(weather.week) ? weather.week : [];
-// 週の先頭が明日と同じなら1個ずらす（明後日から表示）
-if (week[0]?.dateKey && weather?.tomorrow?.dateKey && week[0].dateKey === weather.tomorrow.dateKey) {
-  week = week.slice(1);
-}
-week = week.slice(0,5);
+
+      if (week[0]?.dateKey && weather?.tomorrow?.dateKey && week[0].dateKey === weather.tomorrow.dateKey) {
+        week = week.slice(1);
+      }
+      week = week.slice(0,5);
 
       body.innerHTML = `
         <div class="wxTodayTomorrow">
@@ -707,23 +717,21 @@ week = week.slice(0,5);
 
     // ---------- Alerts ----------
     function renderAlerts(alerts){
-  const barTop = document.getElementById("alertBar");
-  const barCard = document.getElementById("alertBarInCard");
+      const barTop = document.getElementById("alertBar");
+      const barCard = document.getElementById("alertBarInCard");
 
-  const hide = (el)=>{ if(!el) return; el.style.display="none"; el.textContent=""; };
-  const show = (el, text)=>{ if(!el) return; el.textContent=text; el.style.display="block"; };
+      const hide = (el)=>{ if(!el) return; el.style.display="none"; el.textContent=""; };
+      const show = (el, text)=>{ if(!el) return; el.textContent=text; el.style.display="block"; };
 
-  if(!alerts || alerts.length === 0){
-    hide(barTop);
-    hide(barCard);
-    return;
-  }
-  const text = alerts.slice(0,3).map(a => `【${a.area}】${a.title}`).join(" / ");
-
-  // 今回の要望：天気カード内に表示したい
-  hide(barTop);
-  show(barCard, text);
-}
+      if(!alerts || alerts.length === 0){
+        hide(barTop);
+        hide(barCard);
+        return;
+      }
+      const text = alerts.slice(0,3).map(a => `【${a.area}】${a.title}`).join(" / ");
+      hide(barTop);
+      show(barCard, text);
+    }
 
     // ---------- News ----------
     function renderNews(news){
@@ -748,7 +756,6 @@ week = week.slice(0,5);
             const source = it?.source || "";
             const time = fmtTimeHHMM(it?.time);
             const chip = it?.chip || "";
-
             const chipClass = (chip==="ローカル") ? "chip chipLocal" : "chip chipNational";
 
             return `
@@ -813,33 +820,61 @@ week = week.slice(0,5);
       document.getElementById("clockTime").textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
     }
 
+    function normalizeDateKeys_(payload){
+      const w = payload?.weather;
+      if (w?.today?.date && !w.today.dateKey) w.today.dateKey = w.today.date;
+      if (w?.tomorrow?.date && !w.tomorrow.dateKey) w.tomorrow.dateKey = w.tomorrow.date;
+      if (Array.isArray(w?.week)) w.week.forEach(d => { if (d?.date && !d.dateKey) d.dateKey = d.date; });
+      return payload;
+    }
+
+    function renderPayload_(payload, {fromCache=false} = {}){
+      payload = normalizeDateKeys_(payload);
+
+      const generatedAt = payload?.generatedAt || payload?.weather?.updatedAt || null;
+      document.getElementById("updatedLine").textContent =
+        "更新: " + (generatedAt ? new Date(generatedAt).toLocaleString("ja-JP") : "--");
+
+      renderAlerts(payload?.alerts || []);
+      if (payload?.weather) renderWeather(payload.weather);
+      else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
+      renderNews(payload?.news || { national: [], local: [] });
+
+      // TTL判定 → 薄くする
+      const ageMs = Date.now() - getPayloadTimeMs(payload);
+      const isStale = (getPayloadTimeMs(payload) > 0) && (ageMs > TTL_MS);
+
+      if(fromCache){
+        setStaleUi(true, isStale
+          ? "前回データ表示中（古い可能性があります）"
+          : "前回データ表示中（通信待ち）"
+        );
+      }else{
+        setStaleUi(isStale, isStale ? "更新が止まっています（古い可能性があります）" : "");
+      }
+    }
+
     async function refresh(){
-  // 1) GAS内プレビューなら google.script.run が最優先
-  if (window.google?.script?.run?.withSuccessHandler) {
-    google.script.run
-      .withSuccessHandler((payload)=>{
-        const generatedAt = payload?.generatedAt || payload?.weather?.updatedAt || null;
-        document.getElementById("updatedLine").textContent =
-          "更新: " + (generatedAt ? new Date(generatedAt).toLocaleString("ja-JP") : "--");
-
-        renderAlerts(payload?.alerts || []);
-
-        const w = payload?.weather;
-        if (w?.today?.date && !w.today.dateKey) w.today.dateKey = w.today.date;
-        if (w?.tomorrow?.date && !w.tomorrow.dateKey) w.tomorrow.dateKey = w.tomorrow.date;
-        if (Array.isArray(w?.week)) w.week.forEach(d => { if (d?.date && !d.dateKey) d.dateKey = d.date; });
-
-        if (w) renderWeather(w);
-        else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
-
-        renderNews(payload?.news || { national: [], local: [] });
-      })
-      .withFailureHandler((err)=>{
-        showDataError("データ取得エラー: " + (err?.message || String(err)));
-      })
-      .getData();
-    return;
-  }
+      // 1) GAS内プレビューなら google.script.run が最優先
+      if (window.google?.script?.run?.withSuccessHandler) {
+        google.script.run
+          .withSuccessHandler((payload)=>{
+            saveCache(payload);
+            renderPayload_(payload, {fromCache:false});
+          })
+          .withFailureHandler((err)=>{
+            // 失敗→キャッシュを表示（薄くする）
+            const c = loadCache();
+            if(c?.payload){
+              renderPayload_(c.payload, {fromCache:true});
+            }else{
+              showDataError("データ取得エラー: " + (err?.message || String(err)));
+              setStaleUi(true, "更新できていません（キャッシュ無し）");
+            }
+          })
+          .getData();
+        return;
+      }
 
       // 2) 外部（CYBER Signage等）なら JSONP
       const execUrl = WEBAPP_EXEC_URL;
@@ -853,54 +888,44 @@ week = week.slice(0,5);
         const cbName = "cb_" + Math.random().toString(36).slice(2);
         const payload = await loadJsonp(dataUrl, cbName);
 
-        const generatedAt = payload?.generatedAt || payload?.weather?.updatedAt || null;
-        document.getElementById("updatedLine").textContent =
-          "更新: " + (generatedAt ? new Date(generatedAt).toLocaleString("ja-JP") : "--");
-
-        renderAlerts(payload?.alerts || []);
-
-// ★ date → dateKey 変換（外部JSONPでも必要）
-const w = payload?.weather;
-if (w?.today?.date && !w.today.dateKey) w.today.dateKey = w.today.date;
-if (w?.tomorrow?.date && !w.tomorrow.dateKey) w.tomorrow.dateKey = w.tomorrow.date;
-if (Array.isArray(w?.week)) w.week.forEach(d => { if (d?.date && !d.dateKey) d.dateKey = d.date; });
-
-if (w) renderWeather(w);
-else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
-
-// ★ news を描画
-renderNews(payload?.news || { national: [], local: [] });
+        saveCache(payload);
+        renderPayload_(payload, {fromCache:false});
 
       }catch(err){
-        showDataError("データ取得エラー: " + (err?.message || String(err)), dataUrl);
+        // ★ここが重要：真っ白にせず「前回表示を残す」＋「薄くする」
+        const c = loadCache();
+        if(c?.payload){
+          renderPayload_(c.payload, {fromCache:true});
+        }else{
+          showDataError("データ取得エラー: " + (err?.message || String(err)), dataUrl);
+          setStaleUi(true, "更新できていません（キャッシュ無し）");
+        }
       }
     }
 
-    
     tickClock();
     setInterval(tickClock, 1000 * 5);
     refresh();
     setInterval(refresh, 1000 * 60 * 2);
-
   </script>
 
   <script>
-(function(){
-  const DESIGN_W = 2160;
-  const DESIGN_H = 785;
-  const stage = document.getElementById("stage");
+  (function(){
+    const DESIGN_W = 2160;
+    const DESIGN_H = 785;
+    const stage = document.getElementById("stage");
 
-  function fit(){
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const scale = Math.min(vw / DESIGN_W, vh / DESIGN_H);
-    stage.style.transform = `scale(${scale})`;
-  }
+    function fit(){
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const scale = Math.min(vw / DESIGN_W, vh / DESIGN_H);
+      stage.style.transform = `scale(${scale})`;
+    }
 
-  window.addEventListener("resize", fit);
-  fit();
-})();
-</script>
-  
+    window.addEventListener("resize", fit);
+    fit();
+  })();
+  </script>
+
 </body>
 </html>
