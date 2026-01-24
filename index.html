@@ -20,11 +20,7 @@
 
     --wDayLabel: 36px;
     --wDate: 30px;
-    --wMain: 34px;
-    --wSub: 28px;
-    --wSmall: 22px;
 
-    --nTitle: 42px;
     --nRowTitle: 36px;
     --nRowMeta: 26px;
 
@@ -37,12 +33,13 @@
   }
 
   html, body { width: 100vw; height: 100vh; margin:0; overflow:hidden; }
-  body{ display:block; }
-
   *{ box-sizing:border-box; }
+
   body{
     margin:0;
-    font-family: system-ui, -apple-system, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    /* “Mac Safariと同じ見え方”寄せ：英数字も含めて同系統を優先 */
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+                 "Noto Sans JP", system-ui, sans-serif;
     background: radial-gradient(1400px 900px at 50% -10%, var(--bg2), var(--bg1));
     color:#0f172a;
   }
@@ -58,14 +55,11 @@
 
   /* ▼▼ “古いデータ” 表示（TTL超え） ▼▼ */
   body.is-stale .card{
-    opacity: .58;            /* ここが「薄くする」 */
+    opacity: .58;
     filter: saturate(.92);
   }
-  body.is-stale .badgeInfo{
-    opacity: .95;
-  }
   body.is-stale .dot{
-    background:#f59e0b;      /* 緑→橙 */
+    background:#f59e0b;
     box-shadow:0 0 0 6px rgba(245,158,11,.20);
   }
   #staleBadge{
@@ -81,19 +75,19 @@
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-    max-width: 920px;
+    max-width: 980px;
   }
   body.is-stale #staleBadge{ display:block; }
   /* ▲▲ TTL表示ここまで ▲▲ */
 
-  /* ====== layout（下切れ対策：縦方向を少しだけ節約） ====== */
+  /* ====== layout（下切れ対策：縦方向を節約） ====== */
   .wrap{
     width: var(--W);
     height: var(--H);
-    padding:14px 20px;     /* 18/22 → 14/20 */
+    padding:14px 20px;
     display:flex;
     flex-direction:column;
-    gap:8px;               /* 10 → 8 */
+    gap:8px;
   }
 
   .topbar{
@@ -117,6 +111,7 @@
     letter-spacing:.5px;
   }
   .dot{ width:10px;height:10px;border-radius:50%; background:#22c55e; box-shadow:0 0 0 6px rgba(34,197,94,.18); }
+
   #updatedLine{
     color: rgba(255,255,255,.9);
     font-weight: 800;
@@ -138,10 +133,9 @@
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-    max-width: 920px;
+    max-width: 980px;
   }
 
-  /* 防災：カード内表示（白背景に合わせる） */
   .alertInCard{
     max-width: 100%;
     margin: 6px 0 8px;
@@ -164,7 +158,7 @@
     flex:1;
     display:grid;
     grid-template-columns: 0.95fr 1.05fr;
-    gap:14px;              /* 16 → 14 */
+    gap:14px;
     min-height:0;
   }
 
@@ -172,7 +166,7 @@
     background: var(--card);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
-    padding: 14px 16px;    /* 16/18 → 14/16 */
+    padding: 14px 16px;
     overflow:hidden;
     display:flex;
     flex-direction:column;
@@ -183,7 +177,7 @@
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom: 6px;    /* 8 → 6 */
+    margin-bottom: 6px;
     gap:10px;
   }
   .cardTitle{
@@ -199,33 +193,12 @@
     font-weight: 800;
     white-space:nowrap;
   }
-  .divider{ height:1px; background: var(--line); margin: 6px 0 8px; } /* 8/10 → 6/8 */
 
   /* ===== Weather ===== */
-  .wxBody{ display:flex; flex-direction:column; gap:8px; min-height:0; } /* 10 → 8 */
-
-  .wxTempRow{
-    display:flex;
-    gap:10px;
-    align-items:baseline;
-  }
-  .wxTempRow > .metricLine{ flex:1; margin:0; }
+  .wxBody{ display:flex; flex-direction:column; gap:8px; min-height:0; }
 
   .tMax{ color:#dc2626; font-weight:1000; }
   .tMin{ color:#2563eb; font-weight:1000; }
-
-  .wxMetrics{
-    font-size: 30px;
-    font-weight: 900;
-    display:flex;
-    flex-direction:column;
-    gap:3px;               /* 4 → 3 */
-    color:#111827;
-  }
-  .wxMetrics span{ white-space:nowrap; }
-  .wxMetrics .metricLine{ white-space:nowrap; }
-
-  .wxWeekTemps{ font-size: 24px; font-weight: 900; }
 
   .wxTodayTomorrow{
     display:grid;
@@ -236,8 +209,8 @@
   .wxBox{
     border:1px solid var(--line);
     border-radius: 14px;
-    padding: 10px 10px 9px;  /* 下を1px詰め */
-    min-height: 238px;       /* 245 → 238（下切れ対策） */
+    padding: 10px 10px 9px;
+    min-height: 238px;
     display:flex;
     flex-direction:column;
     gap:6px;
@@ -250,8 +223,8 @@
     font-weight: 900;
     gap:10px;
   }
-  .wxLabel{ font-size: var(--wDayLabel); }
-  .wxDate{ font-size: var(--wDate); color:#111827; opacity:.95; }
+  .wxLabel{ font-size: 36px; }
+  .wxDate{ font-size: 30px; color:#111827; opacity:.95; }
 
   .wxMid{
     display:grid;
@@ -277,6 +250,13 @@
     min-width:0;
   }
 
+  .wxText{
+    font-weight: 900;
+    line-height: 1.10;
+    white-space: normal;
+    overflow: visible;
+    word-break: break-word;
+  }
   .wxText .wxMainWord{
     font-size: 40px;
     font-weight: 1000;
@@ -288,46 +268,35 @@
     font-weight: 900;
     opacity: .95;
     display:block;
-    line-height: 1.15;     /* 1.18 → 1.15（下切れ対策） */
+    line-height: 1.15;
   }
-  .wxText{
-    font-weight: 900;
-    line-height: 1.10;     /* 1.12 → 1.10 */
-    white-space: normal;
-    overflow: visible;
-    word-break: break-word;
-  }
-
-  .wxWeekText{
-    font-size: 22px;
-    font-weight: 900;
-    line-height: 1.10;     /* 1.12 → 1.10 */
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
-    white-space: normal;
-  }
-  .wxWeekText .wxMainWord{ font-size: 24px; font-weight: 1000; margin-right: 6px; }
-  .wxWeekText .wxTail{ font-size: 20px; font-weight: 900; opacity: .95; }
-
+  /* 2行目以降が長いときだけ小さくする（要望） */
   .wxText.is-long  .wxTail{ font-size: 24px; }
   .wxText.is-xlong .wxTail{ font-size: 21px; }
 
+  .wxMetrics{
+    font-size: 30px;
+    font-weight: 900;
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+    color:#111827;
+  }
+  .metricLine{ white-space:nowrap; }
+
   .wxWeek{
     border-top:1px dashed var(--line);
-    padding-top: 8px;      /* 10 → 8 */
+    padding-top: 8px;
   }
-
   .wxWeekRow{
     display:grid;
     grid-template-columns: repeat(5, 1fr);
-    gap:8px;               /* 10 → 8 */
+    gap:8px;
   }
   .wxWeekItem{
     border:1px solid var(--line);
     border-radius: 14px;
-    padding: 9px;          /* 10 → 9 */
+    padding: 9px;
     display:flex;
     flex-direction:column;
     gap:6px;
@@ -345,12 +314,13 @@
     display:flex; align-items:center; justify-content:center;
   }
   .wxWeekIcon{ width:100%; height:100%; }
+  .wxWeekTemps{ font-size: 24px; font-weight: 900; }
 
   /* ===== News ===== */
   .newsBody{
     display:flex;
     flex-direction:column;
-    gap:8px;               /* 10 → 8 */
+    gap:8px;
     min-height:0;
   }
   .newsList{
@@ -359,27 +329,40 @@
     margin:0;
     display:flex;
     flex-direction:column;
-    gap:8px;               /* 10 → 8 */
+    gap:8px;
     overflow:hidden;
   }
   .newsItem{
     border:1px solid var(--line);
     border-radius: 14px;
-    padding: 10px 12px;    /* 12 → 10 */
+    padding: 10px 12px;
     display:flex;
     flex-direction:column;
     gap:6px;
     min-width:0;
   }
+
+  /* 全国：1行で大きく（従来どおり） */
   .newsTitle{
     font-size: var(--nRowTitle);
     font-weight: 900;
-    line-height:1.12;      /* 1.15 → 1.12（下切れ対策） */
+    line-height:1.12;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
     max-width: 100%;
   }
+
+  /* ★ローカル：2行表示＋少しだけ小さくして「読める」方向へ */
+  .newsTitle.is-local{
+    font-size: 34px;              /* 36→34 */
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;        /* 2行 */
+    overflow: hidden;
+  }
+
   .newsMeta{
     font-size: var(--nRowMeta);
     color: var(--muted);
@@ -391,6 +374,7 @@
     overflow:hidden;
     text-overflow:ellipsis;
     min-width:0;
+    line-height:1.05;             /* 下切れ対策 */
   }
 
   .chip{
@@ -459,13 +443,13 @@
   </div>
 
   <script>
-    // ★あなたの /exec(B)（固定でOK）
+    // ★あなたの /exec（固定）
     const WEBAPP_EXEC_URL = "https://script.google.com/macros/s/AKfycbyAlq4IuSKCdpdgV6B6nvRt8-hT5QpNrq-B7ITJvofheIqRCDHf3soudA0fV2CBXLiM/exec";
 
-    // ===== TTL / Cache（ここが今回の肝）=====
-    // 例：6時間を超えたら “薄くする” + バッジ表示
-    const TTL_MS = 6 * 60 * 60 * 1000; // 6h（必要なら 3h にしてもOK）
-    const CACHE_KEY = "SIGNAGE_CACHE_V1";
+    // ===== TTL / Cache（表示側）=====
+    // 例：6時間を超えたら “薄くする”
+    const TTL_MS = 6 * 60 * 60 * 1000; // 6h（必要なら3h等に変更OK）
+    const CACHE_KEY = "SIGNAGE_CACHE_V2";
 
     // ---------- util ----------
     const pad2 = (n)=> String(n).padStart(2,"0");
@@ -501,13 +485,9 @@
 
     function saveCache(payload){
       try{
-        localStorage.setItem(CACHE_KEY, JSON.stringify({
-          savedAt: Date.now(),
-          payload
-        }));
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ savedAt: Date.now(), payload }));
       }catch(_){}
     }
-
     function loadCache(){
       try{
         const t = localStorage.getItem(CACHE_KEY);
@@ -517,7 +497,6 @@
         return null;
       }
     }
-
     function getPayloadTimeMs(payload){
       const g = payload?.generatedAt || payload?.weather?.updatedAt || payload?.news?.updatedAt || null;
       const ms = g ? Date.parse(g) : NaN;
@@ -631,6 +610,7 @@
 
       const minText = normDeg(day?.tempMin);
       const maxText = normDeg(day?.tempMax);
+
       const len = title.length;
       const textClass =
         (len >= 18) ? "wxText is-xlong" :
@@ -715,7 +695,6 @@
       `;
     }
 
-    // ---------- Alerts ----------
     function renderAlerts(alerts){
       const barTop = document.getElementById("alertBar");
       const barCard = document.getElementById("alertBarInCard");
@@ -733,11 +712,12 @@
       show(barCard, text);
     }
 
-    // ---------- News ----------
+    // ---------- News（ローカルだけ2行クランプ） ----------
     function renderNews(news){
       const body = document.getElementById("newsBody");
       const n = Array.isArray(news?.national) ? news.national : [];
       const l = Array.isArray(news?.local) ? news.local : [];
+
       const items = [
         ...n.map(x => ({...x, chip:"全国"})),
         ...l.map(x => ({...x, chip:"ローカル"}))
@@ -756,11 +736,13 @@
             const source = it?.source || "";
             const time = fmtTimeHHMM(it?.time);
             const chip = it?.chip || "";
+
             const chipClass = (chip==="ローカル") ? "chip chipLocal" : "chip chipNational";
+            const titleClass = (chip==="ローカル") ? "newsTitle is-local" : "newsTitle";
 
             return `
               <li class="newsItem">
-                <div class="newsTitle" title="${escapeHtml(title)}">
+                <div class="${titleClass}" title="${escapeHtml(title)}">
                   ${link ? `<a href="${escapeHtml(link)}" target="_blank" rel="noreferrer">${escapeHtml(title)}</a>` : escapeHtml(title)}
                 </div>
                 <div class="newsMeta" title="${escapeHtml(chip)} / ${escapeHtml(source)} / ${time}">
@@ -812,9 +794,6 @@
       document.getElementById("newsBody").innerHTML = e;
     }
 
-    /** =========================
-     *  Clock + Refresh
-     *  ========================= */
     function tickClock(){
       const now = new Date();
       document.getElementById("clockTime").textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
@@ -840,7 +819,6 @@
       else document.getElementById("weatherBody").innerHTML = `<div class="error">天気データが空です</div>`;
       renderNews(payload?.news || { national: [], local: [] });
 
-      // TTL判定 → 薄くする
       const ageMs = Date.now() - getPayloadTimeMs(payload);
       const isStale = (getPayloadTimeMs(payload) > 0) && (ageMs > TTL_MS);
 
@@ -855,28 +833,6 @@
     }
 
     async function refresh(){
-      // 1) GAS内プレビューなら google.script.run が最優先
-      if (window.google?.script?.run?.withSuccessHandler) {
-        google.script.run
-          .withSuccessHandler((payload)=>{
-            saveCache(payload);
-            renderPayload_(payload, {fromCache:false});
-          })
-          .withFailureHandler((err)=>{
-            // 失敗→キャッシュを表示（薄くする）
-            const c = loadCache();
-            if(c?.payload){
-              renderPayload_(c.payload, {fromCache:true});
-            }else{
-              showDataError("データ取得エラー: " + (err?.message || String(err)));
-              setStaleUi(true, "更新できていません（キャッシュ無し）");
-            }
-          })
-          .getData();
-        return;
-      }
-
-      // 2) 外部（CYBER Signage等）なら JSONP
       const execUrl = WEBAPP_EXEC_URL;
       if (!execUrl) {
         showDataError("WEBAPP_EXEC_URL が未設定です。/exec URL を設定してください。");
@@ -892,7 +848,7 @@
         renderPayload_(payload, {fromCache:false});
 
       }catch(err){
-        // ★ここが重要：真っ白にせず「前回表示を残す」＋「薄くする」
+        // 真っ白にせず「前回表示」＋「薄くする」
         const c = loadCache();
         if(c?.payload){
           renderPayload_(c.payload, {fromCache:true});
